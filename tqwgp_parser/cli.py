@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
     tqwgp-parser.cli
     ~~~~~~~~~~~~~~~~~~~~~
@@ -15,6 +16,7 @@ import os
 # - JSON;
 # - Yaml;
 # - Toml.
+
 
 def load_project(project, file, project_path=None):
     # TODO Allows to load project by path. By require

@@ -17,9 +17,12 @@ setup(
     description="A library for parsing Talk Quote Work Get-Paid (TQWGP) text-based compliant sales and accounting documents.",
     long_description=readme_markdown,
     long_description_content_type="text/markdown",
-    packages=["tqwgp-parser"],
+    packages=["tqwgp_parser"],
     include_package_data=True,
-    zip_safe=True,
+    package_data={
+        "tqwgp_parser": ["*.hy"],
+    },
+    zip_safe=False,
     platforms="any",
     install_requires=["hy"],
 )

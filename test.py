@@ -1,20 +1,3 @@
-# Talk Quote Work Get-Paid (aka TQWGP) proposal and invoice parser
-
-> Your text base sales and accounting toolkit, especially designed for freelancers, by freelancers
-
-# Installing
-
-```sh
-pip install tgwpg-parser
-```
-
-# Usage
-
-## Parsing proposals
-
-First, declare your quote data:
-
-```python
 my_proposal = {
     "title": "Tesla Model 3 Configurator",
     "date": "29 novembre 2016",
@@ -65,27 +48,7 @@ my_proposal = {
         }
     ],
 }
-```
 
-> Note: your can look at more complete and various samples in [`tests/samples`](tests/samples).
-
-You can then process this proposal data using `tqwgp_parser.parse_quote`:
-
-```python
-import pprint
-from tqwgp_parser import parse_quote
-
-my_parsed_proposal = parse_quote(my_proposal)
-pprint.pprint(my_parsed_proposal)
-```
-
-> Pro-tip: the data can be declared in flat files, for eg. using Yaml or Json formats. It could also be loaded from a database: this is your choice!
-
-## Parsing invoices
-
-Declare your invoices data:
-
-```python
 my_invoices = {
     "sect": {"email": "bf@bf-printer.com", "name": "BF Printer \\& Co"},
     "legal": {
@@ -128,43 +91,3 @@ my_invoices = {
         }
     ],
 }
-```
-
-And process it with the help of `tqwgp_parser.parse_invoices`:
-
-```python
-import pprint
-from tqwgp_parser import parse_invoices
-
-my_parsed_invoices = parse_invoices(my_invoices)
-pprint.pprint(my_parsed_invoices)
-```
-
-## Going further
-
-You could then feed the processed data to your own document edition toolchain to create PDFs from it. This could include using Pandoc and LaTeX to edit the PDF (see for eg. [mrzool's invoice-boilerplate](https://github.com/mrzool/invoice-boilerplate/) setup) ; or sending it to an online PDF compiler with your own template (for eg. with a LaTeX template and [LaTeX-on-HTTP](https://github.com/YtoTech/latex-on-http), or with HTML/CSS and [WeasyPrint](https://github.com/Kozea/WeasyPrint/tree/gh-pages/samples/invoice)).
-
-You may also use the parsed data in a web application.
-
--------------------
-
-# TQWGP text-base documents specification
-
-The format of the TQWGP text-base documents is not finalized.
-
-We'll use this repository as a working specification, through the [samples](tests/samples) and [tests](tests).
-
-
--------------------
-
-# Contributing
-
-## Tests
-
-To contribute to the parser and specification, please wrote test samples for your modifications.
-
-The tests are written for being runned with `pytest`:
-
-```sh
-pipenv run pytest -vv
-```

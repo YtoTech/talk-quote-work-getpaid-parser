@@ -1,0 +1,149 @@
+---
+title: Configurateur de Tesla Model 3
+date: 29 novembre 2016
+version: v1
+place: Philadelphie
+author:
+  civility: M.
+  name: Benjamin Franklin
+  mobile: 07.73.35.51.00
+  role: membre
+sect:
+  name: BF Printer \& Co
+  email: bf@bf-printer.com
+legal:
+  siret: 999999999 00099
+  address:
+    line1: E Thompson Saint
+    zip: '19125'
+    city: Philadelphie
+client:
+  name: Tesla
+  legal:
+    siret: 524335262 00084
+    address:
+      line1: 103 Route de Mantes
+      zip: '78240'
+      city: Chambourcy
+  contact:
+    civility: M.
+    name: Elon Musk
+    role: CEO
+    sason: son
+object: |
+  Le présent devis porte sur ...
+
+
+  La prestation consiste à ...
+
+  Inclure un lien avec \url{https://www.tesla.com}.
+definitions: |
+  Tesla désigne le constructeur automobile de voitures électriques sportives et de luxe dont le siège social se situe à Palo Alto, dans la Silicon Valley, aux États-Unis.
+
+
+  La Model 3 avait pour nom de code Tesla BlueStar. Son nom actuel fut annoncé le 16 juillet 201431,32. Plus compacte que la Model S, elle mesurerait 4,60 m. Tesla, avec cette nouvelle gamme, vise tout particulièrement le segment des berlines haut de gamme. Elle a été dévoilée officiellement le 31 mars 2016 et sera commercialisée à partir de fin 2017.
+context: |
+  Tesla est une entreprise qui cherche à répandre et universaliser l'usage de véhicules électriques.
+
+
+  Je fais une liste comme ça :
+  \begin{itemize}
+    \item Un point ;
+    \item Un carré ;
+    \item Mais il est pas carré ;
+    \item Ok on a compris.
+  \end{itemize}\bigskip
+  Blablabla.
+
+
+  Finalement ...
+
+
+  YtoTech, to be, or not to be.
+
+
+  Le présent devis a pour objectif d’établir ...
+prestations:
+  - title: Développement du Nouveau CPQ Tesla
+    batch: 1
+    prestations:
+      - title: Création des configurations sur le CPQ
+        price: 5000
+        description: |
+          Fichier (appelés de définitions) pour décrire les étapes de création d'un produit, ses contraintes, le calcul de son prix, etc.
+      - title: Intégration de l'UI
+        price: 10000
+        description: |
+          On peut aussi faire des listes ici :
+          \begin{itemize}
+            \item Vue extérieure ;
+            \item Vue intérieure ;
+            \item Vue explosée.
+          \end{itemize}
+  - title: Intégration e-commerce du CPQ sur tesla.com
+    prestations:
+      - title: Intégration Javascript
+        price: 2000
+        batch: 1
+      - title: Intégration CSS
+        price: 4300
+        batch: 2
+  - title: Optimisation du tunnel de vente
+    description: |
+      Suivi des métriques du tunnel de vente pendant 3 mois et optimisation
+      de l'intégration e-commerce CPQ en fonction
+    price: 25000
+    batch: 3
+conditions:
+  - name: Lotissement de la prestation
+    content: |
+      La prestation est organisée en plusieurs lots. Chaque lot fera l’objet d’une livraison et d’une
+      facturation séparée. Le client décide de souscrire à la réalisation des prestations lot par lot.
+
+
+      Le 1\textsuperscript{er} lot comprend :
+      \begin{itemize}
+        \item Création des configurations sur le CPQ.
+      \end{itemize}\bigskip
+      Le 2\textsuperscript{nd} lot comprend :
+      \begin{itemize}
+        \item Intégration de l'UI.
+      \end{itemize}\bigskip
+  - name: Propriété intellectuelle
+    content: |
+      Les logiciels et dispositifs développés dans le cadre de la prestation, y compris tous les
+      dispositifs de tests, deviendront la propriété de TODO Templateception après la réception et le
+      paiement intégral des prestations associées au présent devis.
+      \\
+      Les logiciels et dispositifs dont la propriété intellectuelle est cédée sont ceux listés dans la
+      section « Livrables ».
+      \\
+      Les logiciels et dispositifs non-listés ne sont pas cédés dans le cadre du présent contrat.
+  - name: Livrables
+    content: |
+      \begin{itemize}
+      	\bulletitem All On GitHub.
+      \end{itemize}\bigskip
+      \noindent Tout code source sera documenté ; il pourra être repris et étendu par d’autres prestataires et
+      développeurs.
+  - name: Hors périmètre
+    content: |
+      Les éléments suivants sont considérés comme hors-périmètre de la prestation :
+      \\
+      \begin{itemize}
+      	\item Produire les véhicules ;
+      	\item Sauver la planète.
+      \end{itemize}\bigskip
+      Un devis pourra être demandé pour leur réalisation.
+  - name: Garantie
+    content: |
+      La prestation réalisée par YtoTech est soumise à une garantie de six (6) mois à compter de la
+      date de solde de l’intégralité des prestations associées au devis.
+      \\
+      La garantie inclus la correction des défauts techniques constatés dans les logiciels livrables du
+      présent devis. Des corrections mineures pourront être incluses, au jugement seul d’YtoTech.
+  - name: Prise d’effet du devis
+    content: |
+      Le présent devis et ses termes prendront effet à compter de la signature des parties en
+      présence, ou à défaut du règlement par le client de l’acompte pour le premier lot de
+      prestations.

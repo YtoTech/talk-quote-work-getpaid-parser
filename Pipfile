@@ -9,6 +9,7 @@ hy = "*"
 [dev-packages]
 black = "*"
 pytest = "*"
+pyyaml = "*"
 
 [requires]
 python_version = "3"
