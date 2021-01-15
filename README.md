@@ -7,7 +7,7 @@
 # Installing
 
 ```sh
-pip install tgwpg-parser
+pip install tqwgp-parser
 ```
 
 # Usage
