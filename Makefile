@@ -9,7 +9,7 @@ test:
 	pipenv run pytest -vv
 
 install-package-in-venv:
-	pipenv uninstall --skip-lock tqwgp_parser
+	pipenv uninstall --skip-lock tqwgp-parser
 	pipenv run python setup.py install
 
 test-package-in-venv: install-package-in-venv test

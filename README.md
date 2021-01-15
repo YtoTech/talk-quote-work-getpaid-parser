@@ -1,5 +1,7 @@
 # Talk Quote Work Get-Paid (aka TQWGP) proposal and invoice parser
 
+[![Build Status](https://travis-ci.org/YtoTech/talk-quote-work-getpaid-parser.svg?branch=master)](https://travis-ci.org/YtoTech/talk-quote-work-getpaid-parser) [![PyPI version](https://badge.fury.io/py/tqwgp-parser.svg)](https://pypi.python.org/pypi/tqwgp-parser/)
+
 > Your text base sales and accounting toolkit, especially designed for freelancers, by freelancers
 
 # Installing
@@ -142,7 +144,7 @@ pprint.pprint(my_parsed_invoices)
 
 ## Going further
 
-You could then feed the processed data to your own document edition toolchain to create PDFs from it. This could include using Pandoc and LaTeX to edit the PDF (see for eg. [mrzool's invoice-boilerplate](https://github.com/mrzool/invoice-boilerplate/) setup) ; or sending it to an online PDF compiler with your own template (for eg. with a LaTeX template and [LaTeX-on-HTTP](https://github.com/YtoTech/latex-on-http), or with HTML/CSS and [WeasyPrint](https://github.com/Kozea/WeasyPrint/tree/gh-pages/samples/invoice)).
+You could then feed the processed data to your own document edition toolchain to create PDFs from it. This could include using Pandoc and LaTeX to edit the PDF (see for eg. [mrzool's invoice-boilerplate](https://github.com/mrzool/invoice-boilerplate/) setup) ; or sending it to an online PDF compiler with your own template (for eg. with a LaTeX template and [LaTeX-on-HTTP](https://github.com/YtoTech/latex-on-http)), or using HTML/CSS based template (with tooks like [WeasyPrint](https://github.com/Kozea/WeasyPrint/tree/gh-pages/samples/invoice) or [ReLaXed](https://github.com/RelaxedJS/ReLaXed)).
 
 You may also use the parsed data in a web application.
 
