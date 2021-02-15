@@ -30,6 +30,7 @@ TESLA_SECTIONS_QUOTE = load_definition_from_file(
     SAMPLE_DIR + "TESLA-SECTIONS/quote.yml"
 )
 TESLA_BATCHES_QUOTE = load_definition_from_file(SAMPLE_DIR + "TESLA-BATCHES/quote.yml")
+TESLA_QUANTITIES_QUOTE = load_definition_from_file(SAMPLE_DIR + "TESLA-QUANTITIES/quote.yml")
 
 # TODO Make an universal data validation framework.
 QUOTE_MANDATORY_ENTRIES = [
@@ -107,6 +108,7 @@ def test_parse_simple_quote():
     assert quote["optional_price"]["total_vat_excl"] == 14000
     assert len(quote["all_prestations"]) == 4
     assert len(quote["optional_prestations"]) == 1
+    assert quote["has_quantities"] is False
     assert quote["prestations"][0]["title"] == "Création des configurations sur le CPQ"
     assert quote["prestations"][0]["price"] == 5000
     assert quote["prestations"][0]["optional"] is False
@@ -296,6 +298,29 @@ def test_parse_quote_with_optional_sections():
     assert quote["sections"][1]["price"] == 6300
     assert quote["sections"][1]["optional"] == True
 
+
+def test_parse_quote_with_quantities():
+    """
+    Parse a quote definition including quantities.
+    """
+    quote = parse_quote(TESLA_QUANTITIES_QUOTE)
+    checkQuote(quote)
+    assert quote["title"] == "Configurateur de Tesla Model 3"
+    assert quote["sect"]["logo"]["path"] == "tests/samples/tesla_logo.png"
+    assert quote["sect"]["logo"]["file"] == "tests/samples/tesla_logo.png"
+    assert quote["has_quantities"] is True
+    assert quote["price"]["total_vat_excl"] == 35000
+    assert len(quote["prestations"]) == 2
+    assert len(quote["all_prestations"]) == 2
+    assert len(quote["optional_prestations"]) == 0
+    assert quote["prestations"][0]["title"] == "Création des configurations sur le CPQ"
+    assert quote["prestations"][0]["price"] == 5000
+    assert quote["prestations"][0]["optional"] is False
+    assert quote["prestations"][0]["quantity"] == 1
+    assert quote["prestations"][1]["title"] == "Intégration de l'UI"
+    assert quote["prestations"][1]["price"] == 10000
+    assert quote["prestations"][1]["optional"] is False
+    assert quote["prestations"][1]["quantity"] == 3
 
 # ------------------------------------------------------------------------------
 # Invoices.

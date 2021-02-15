@@ -100,8 +100,9 @@
   (merge-dicts [
     (parse-dict-values prestation
       ["title"]
-      ["price" "description" "batch" "optional"])
+      ["price" "quantity" "description" "batch" "optional"])
     {
+      "quantity" (get-default prestation "quantity" 1)
       "section" (get-default (if (none? section) {} section) "title" None)
       "batch" (parse-batch (get-default prestation "batch" (get-default (if (none? section) {} section) "batch" None)))
       "optional" (get-default prestation "optional" (get-default (if (none? section) {} section) "optional" False))
@@ -259,6 +260,7 @@
   (setv (, all-optional-prestations optional-sections)
     (parse-all-prestations (recompose-optional-prestations sections all-prestations)))
   (setv vat-rate (get-default definition "vat_rate" None))
+  (setv has-quantities (any (map (fn [prestation] (> (get prestation "quantity") 1)) all-prestations)))
   (merge-dicts [
     ;; TODO Make the validation of the input dict recursive.
     (parse-dict-values definition
@@ -273,6 +275,7 @@
       "all_prestations" all-prestations
       "sections" sections
       ;; Derive from section and all_prestations.
+      "has_quantities" has-quantities
       "prestations" (recompose-prestations sections all-prestations)
       "optional_prestations" all-optional-prestations
       "optional_sections" optional-sections
