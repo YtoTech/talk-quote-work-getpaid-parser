@@ -30,7 +30,9 @@ TESLA_SECTIONS_QUOTE = load_definition_from_file(
     SAMPLE_DIR + "TESLA-SECTIONS/quote.yml"
 )
 TESLA_BATCHES_QUOTE = load_definition_from_file(SAMPLE_DIR + "TESLA-BATCHES/quote.yml")
-TESLA_QUANTITIES_QUOTE = load_definition_from_file(SAMPLE_DIR + "TESLA-QUANTITIES/quote.yml")
+TESLA_QUANTITIES_QUOTE = load_definition_from_file(
+    SAMPLE_DIR + "TESLA-QUANTITIES/quote.yml"
+)
 
 # TODO Make an universal data validation framework.
 QUOTE_MANDATORY_ENTRIES = [
@@ -321,6 +323,7 @@ def test_parse_quote_with_quantities():
     assert quote["prestations"][1]["price"] == 10000
     assert quote["prestations"][1]["optional"] is False
     assert quote["prestations"][1]["quantity"] == 3
+
 
 # ------------------------------------------------------------------------------
 # Invoices.
