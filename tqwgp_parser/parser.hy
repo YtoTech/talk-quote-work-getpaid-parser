@@ -102,6 +102,7 @@
       ["title"]
       ["price" "quantity" "description" "batch" "optional"])
     {
+      "total" (compute-price [prestation] :count-optional True)
       "quantity" (get-default prestation "quantity" 1)
       "section" (get-default (if (none? section) {} section) "title" None)
       "batch" (parse-batch (get-default prestation "batch" (get-default (if (none? section) {} section) "batch" None)))

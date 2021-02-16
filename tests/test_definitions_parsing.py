@@ -317,10 +317,12 @@ def test_parse_quote_with_quantities():
     assert len(quote["optional_prestations"]) == 0
     assert quote["prestations"][0]["title"] == "Création des configurations sur le CPQ"
     assert quote["prestations"][0]["price"] == 5000
+    assert quote["prestations"][0]["total"] == 5000
     assert quote["prestations"][0]["optional"] is False
     assert quote["prestations"][0]["quantity"] == 1
     assert quote["prestations"][1]["title"] == "Intégration de l'UI"
     assert quote["prestations"][1]["price"] == 10000
+    assert quote["prestations"][1]["total"] == 30000
     assert quote["prestations"][1]["optional"] is False
     assert quote["prestations"][1]["quantity"] == 3
 
