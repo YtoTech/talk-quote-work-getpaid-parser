@@ -4,7 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-hy = "*"
+hy = ">=1.0a2"
+toolz = "*"
 
 [dev-packages]
 black = "*"

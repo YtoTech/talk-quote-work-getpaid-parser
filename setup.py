@@ -9,7 +9,7 @@ with open("README.md") as f:
 
 setup(
     name="tqwgp-parser",
-    version="0.0.5",
+    version="0.1.0",
     url="https://github.com/YtoTech/talk-quote-work-getpaid-parser",
     license="AGPL-3.0",
     author="Yoan Tournade",
@@ -24,5 +24,5 @@ setup(
     },
     zip_safe=False,
     platforms="any",
-    install_requires=["hy"],
+    install_requires=["hy>=1.0a2", "toolz"],
 )

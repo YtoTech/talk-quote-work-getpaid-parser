@@ -5,78 +5,12 @@
     Parse the definitions of TWWGP quotes and invoices.
     :copyright: (c) 2017-2021 Yoan Tournade.
 """
-(import copy)
 (import os)
-(require [hy.extra.anaphoric [*]])
-
-;; Utils.
-
-(defn parse-dict-values [value mandatories optionals]
-  ;; Use dict-comp http://docs.hylang.org/en/stable/language/api.html#dict-comp?
-  (setv parsed-dict {})
-  (for [key (.keys value)] ((fn [key]
-    (if (or (in key mandatories) (in key optionals))
-      (assoc parsed-dict key (get value key))
-      (print (.format "Ignoring key {}" key)))) key))
-  ;; Check all mandatories are here.
-  (for [mandatory mandatories] ((fn [mandatory]
-    (if (not (in mandatory parsed-dict))
-      (raise (ValueError (.format "Missing key {}" mandatory))))) mandatory))
-  ;; Affect None to non-set optionals.
-  (for [optional optionals] ((fn [optional]
-    (if (not (in optional parsed-dict))
-      (assoc parsed-dict optional None))) optional))
-  parsed-dict)
-
-(defn merge-dicts [dicts]
-  (setv merged (.deepcopy copy (get dicts 0)))
-  (for [one-dict (drop 1 dicts)] ((fn [one-dict]
-    (.update merged one-dict)) one-dict))
-  merged)
-
-(defn filter-dict [a-dict pred]
-  (setv new-dict {})
-  (ap-each (.keys a-dict)
-    (if (pred (get a-dict it) it)
-      (assoc new-dict it (get a-dict it))))
-  new-dict)
-
-(defn find-in-list [l pred]
-  (setv element None)
-  (for [item l] ((fn [item])
-    (if (pred item)
-      (do
-        (setv element item)
-        (break))) l))
-  element)
-
-(defn pred-has-entry-value [key value]
-  (fn [element]
-    (= (get element key) value)))
-
-(defn get-default [value key default]
-  (if (in key value)
-    (get value key)
-    default))
-
-(defn pick-by [pred value]
-  (setv new-value {})
-  (for [key (.keys value)] ((fn [key]
-    (if (pred key)
-      (assoc new-value key (get value key)))) key))
-  new-value)
-
-(defn simplest-numerical-format [price]
-  (if (.is_integer (float price))
-    (int price)
-    price))
-
-(defn none-or-true? [value]
-  (or (none? value) (bool value)))
+(import [.utils [*]])
 
 ;; Data parsing and normalization.
 
-(defn parse-all-prestations [prestations &optional [section None]]
+(defn parse-all-prestations [prestations [section None]]
   """
   Parse all prestations, returning a flattened list of prestations (in all-prestations)
   and a list of sections.
@@ -123,7 +57,7 @@
       "optional" (get-default section "optional" False)
     }]))
 
-(defn compute-price [prestations &optional [count-optional False]]
+(defn compute-price [prestations [count-optional False]]
   """
   Parse price of a flattened list of prestations
   (actually any list with object containing a price property),
@@ -153,7 +87,7 @@
   """
   (simplest-numerical-format (* (/ vat-rate 100) price)))
 
-(defn compute-price-vat [prestations &optional [count-optional False] [vat-rate None]]
+(defn compute-price-vat [prestations [count-optional False] [vat-rate None]]
   """
   Compute price, as an object including VAT component, total with VAT excluded, total with VAT included ;
   from a list of objects containing a price (numerical) property.
@@ -179,6 +113,7 @@
   (if (none? batch)
     None
     (str batch)))
+
 
 ;; Data recomposition/derivation from previously parsed data.
 
