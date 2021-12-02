@@ -50,8 +50,8 @@
       ["description" "batch"])
     {
       "prestations" prestations
-      "price" (compute-price-vat prestations :count-optional True :vat-rate vat-rate)
-      "optional_price" (compute-price-vat prestations :count-optional False :vat-rate vat-rate)
+      "price" (compute-price-vat prestations :count-optional False :vat-rate vat-rate)
+      "optional_price" (compute-price-vat prestations :count-optional True :vat-rate vat-rate)
       ;; TODO Normalize batch here: only set if all section prestation has same batch
       ;; (alternative: set a list of batches).
       "batch" (parse-batch (get-default section "batch" None))

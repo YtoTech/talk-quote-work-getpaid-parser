@@ -18,6 +18,7 @@ format:
 	pipenv run black .
 
 release:
+	rm -rf build/ dist/
 	pipenv run python setup.py sdist
 	pipenv run python setup.py bdist_wheel --universal
 	pipenv run twine check dist/*

@@ -1,3 +1,7 @@
+# 0.2.1
+
+* Fix inverted `price` and `optional_price` in `document.sections`)
+
 # 0.2.0
 
 * Each section (`document.sections`) return now both a `price` and `optional_price` properties, which decompose VAT: `total_vat_excl`, `total_vat_incl` and `vat`

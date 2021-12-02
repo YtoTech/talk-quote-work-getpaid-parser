@@ -299,8 +299,8 @@ def test_parse_quote_with_optional_sections():
     assert (
         quote["sections"][1]["title"] == "Intégration e-commerce du CPQ sur tesla.com"
     )
-    assert quote["sections"][1]["price"]["total_vat_excl"] == 6300
-    assert quote["sections"][1]["optional_price"]["total_vat_excl"] == None
+    assert quote["sections"][1]["price"]["total_vat_excl"] == None
+    assert quote["sections"][1]["optional_price"]["total_vat_excl"] == 6300
     assert quote["sections"][1]["optional"] == True
 
 
