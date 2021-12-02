@@ -10,7 +10,7 @@
 
 ;; Data parsing and normalization.
 
-(defn parse-all-prestations [prestations [section None]]
+(defn parse-all-prestations [prestations vat-rate [section None]]
   """
   Parse all prestations, returning a flattened list of prestations (in all-prestations)
   and a list of sections.
@@ -23,8 +23,8 @@
     (if (in "prestations" prestation)
       (do
         (setv section-prestations
-          (get (parse-all-prestations (get prestation "prestations") prestation) 0))
-        (.append sections (parse-section prestation section-prestations))
+          (get (parse-all-prestations (get prestation "prestations") vat-rate prestation) 0))
+        (.append sections (parse-section prestation section-prestations vat-rate))
         (.extend all-prestations section-prestations))
       (.append all-prestations (parse-prestation prestation section))
     )) prestation))
@@ -43,14 +43,15 @@
       "optional" (get-default prestation "optional" (get-default (if (none? section) {} section) "optional" False))
     }]))
 
-(defn parse-section [section prestations]
+(defn parse-section [section prestations vat-rate]
   (merge-dicts [
     (parse-dict-values section
       ["title" "prestations"]
       ["description" "batch"])
     {
       "prestations" prestations
-      "price" (compute-price prestations :count-optional True)
+      "price" (compute-price-vat prestations :count-optional True :vat-rate vat-rate)
+      "optional_price" (compute-price-vat prestations :count-optional False :vat-rate vat-rate)
       ;; TODO Normalize batch here: only set if all section prestation has same batch
       ;; (alternative: set a list of batches).
       "batch" (parse-batch (get-default section "batch" None))
@@ -191,11 +192,11 @@
   """
   Parse and normalize a quote definition.
   """
-  (setv (, all-prestations sections)
-    (parse-all-prestations (get definition "prestations")))
-  (setv (, all-optional-prestations optional-sections)
-    (parse-all-prestations (recompose-optional-prestations sections all-prestations)))
   (setv vat-rate (get-default definition "vat_rate" None))
+  (setv (, all-prestations sections)
+    (parse-all-prestations (get definition "prestations") vat-rate))
+  (setv (, all-optional-prestations optional-sections)
+    (parse-all-prestations (recompose-optional-prestations sections all-prestations) vat-rate))
   (setv has-quantities (any (map (fn [prestation] (> (get prestation "quantity") 1)) all-prestations)))
   (merge-dicts [
     ;; TODO Make the validation of the input dict recursive.

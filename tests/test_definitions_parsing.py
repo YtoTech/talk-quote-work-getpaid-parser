@@ -149,11 +149,13 @@ def test_parse_quote_with_sections():
         quote["all_prestations"][0]["section"] == "Développement du Nouveau CPQ Tesla"
     )
     assert quote["sections"][0]["title"] == "Développement du Nouveau CPQ Tesla"
-    assert quote["sections"][0]["price"] == 15000
+    assert quote["sections"][0]["price"]["total_vat_excl"] == 15000
+    assert quote["sections"][0]["optional_price"]["total_vat_excl"] == 15000
     assert (
         quote["sections"][1]["title"] == "Intégration e-commerce du CPQ sur tesla.com"
     )
-    assert quote["sections"][1]["price"] == 6300
+    assert quote["sections"][1]["price"]["total_vat_excl"] == 6300
+    assert quote["sections"][1]["optional_price"]["total_vat_excl"] == 6300
 
 
 def test_parse_quote_with_batches():
@@ -297,7 +299,8 @@ def test_parse_quote_with_optional_sections():
     assert (
         quote["sections"][1]["title"] == "Intégration e-commerce du CPQ sur tesla.com"
     )
-    assert quote["sections"][1]["price"] == 6300
+    assert quote["sections"][1]["price"]["total_vat_excl"] == 6300
+    assert quote["sections"][1]["optional_price"]["total_vat_excl"] == None
     assert quote["sections"][1]["optional"] == True
 
 
