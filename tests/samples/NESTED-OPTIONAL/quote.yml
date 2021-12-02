@@ -1,0 +1,85 @@
+---
+title: Configurateur de Tesla Model 3
+date: 29 novembre 2016
+version: v1
+place: Philadelphie
+author:
+  civility: M.
+  name: Benjamin Franklin
+  mobile: 07.73.35.51.00
+  role: membre
+sect:
+  name: BF Printer \& Co
+  email: bf@bf-printer.com
+  logo: tests/samples/tesla_logo.png
+legal:
+  siret: 999999999 00099
+  address:
+    line1: E Thompson Saint
+    zip: '19125'
+    city: Philadelphie
+client:
+  name: Tesla
+  legal:
+    siret: 524335262 00084
+    address:
+      line1: 103 Route de Mantes
+      zip: '78240'
+      city: Chambourcy
+  contact:
+    civility: M.
+    name: Elon Musk
+    role: CEO
+    sason: son
+object: |
+  Le présent devis porte sur ...
+
+
+  La prestation consiste à ...
+
+  Inclure un lien avec \url{https://www.tesla.com}.
+definitions: |
+  Tesla désigne le constructeur automobile de voitures électriques sportives et de luxe dont le siège social se situe à Palo Alto, dans la Silicon Valley, aux États-Unis.
+
+
+  La Model 3 avait pour nom de code Tesla BlueStar. Son nom actuel fut annoncé le 16 juillet 201431,32. Plus compacte que la Model S, elle mesurerait 4,60 m. Tesla, avec cette nouvelle gamme, vise tout particulièrement le segment des berlines haut de gamme. Elle a été dévoilée officiellement le 31 mars 2016 et sera commercialisée à partir de fin 2017.
+documents:
+  - 'The mail from Elong Musk about launching this project;'
+  - 'The photo of the sketch I have done on a napkin last night while eating my noodles.'
+prestations:
+  - title: "Setup et Intégrations \\textemdash{} Lot n°1"
+    prestations:
+      - title: "Mise en place initiale de la boutique WooCommerce"
+        price: 280
+        quantity: 25
+      - title: "Synchronisation journalière du catalogue WooCommerce depuis un fournissuer"
+        price: 380
+        quantity: 33
+        description: |
+          Développement d'un module serveur permettant la synchronisation journalière du catalogue
+          WooCommerce depuis un fichier JSON hébergé par le fournisseur.
+      - title: "Fonction spécial optionnelle n°1"
+        price: 80
+        quantity: 4
+        optional: true
+        description: |
+          Ok
+      - title: "Fonction spécial optionnelle n°2"
+        price: 40
+        quantity: 2
+        optional: true
+  - title: "Identité graphique \\textemdash{} Lot n°2"
+    prestations:
+    - title: "Mise en œuvre de l'identité graphique sur les templates WooCommerce"
+      price: 400
+      quantity: 11
+conditions:
+  - name: Livrables
+    content: |
+      Le produit de la prestation se matérialisera par les éléments suivants :
+      \begin{itemize}
+        \bulletitem le code source du module serveur de synchronisation ;
+        \bulletitem le code source du thème Shopify WooCommerce ;
+        \bulletitem la boutique WooCommerce intégrée ;
+        \bulletitem le module de synchronisation déployé chez un hébergeur.
+      \end{itemize}\bigskip

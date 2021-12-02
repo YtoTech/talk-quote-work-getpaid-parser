@@ -119,10 +119,15 @@
 ;; Data recomposition/derivation from previously parsed data.
 
 (defn has-section? [prestation]
-  (and (in "section" prestation) (not (none? (get prestation "section")))))
+  (not (none? (get prestation "section"))))
 
 (defn not-has-section? [prestation]
   (not (has-section? prestation)))
+
+(defn has-optional-section? [prestation]
+  (and
+    (has-section? prestation)
+    (get-default (get prestation "section") "optional" False)))
 
 (defn has-batch? [prestation]
   (and (in "batch" prestation) (not (none? (get prestation "batch")))))
@@ -159,11 +164,11 @@
 
 (defn recompose-optional-prestations [sections all-prestations]
   "Recompose optional prestations: is equal to all optional sections and all optional non-section prestations."
-  (+
-    []
-    (list (filter is-optional? sections))
-    (list (filter (fn [prestation] (and (is-optional? prestation) (not-has-section? prestation))) all-prestations))
-  ))
+  (,
+    (list (filter (fn [prestation]
+                    (and (is-optional? prestation) (not (has-optional-section? prestation))))
+          all-prestations))
+    (list (filter is-optional? sections))))
 
 (defn get-file-extension [filename]
   (get (.splitext os.path filename) 1))
@@ -196,7 +201,7 @@
   (setv (, all-prestations sections)
     (parse-all-prestations (get definition "prestations") vat-rate))
   (setv (, all-optional-prestations optional-sections)
-    (parse-all-prestations (recompose-optional-prestations sections all-prestations) vat-rate))
+    (recompose-optional-prestations sections all-prestations))
   (setv has-quantities (any (map (fn [prestation] (> (get prestation "quantity") 1)) all-prestations)))
   (merge-dicts [
     ;; TODO Make the validation of the input dict recursive.

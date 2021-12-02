@@ -1,3 +1,7 @@
+# 0.2.2
+
+* Fix counts optional prestations inside sections for `optional_prestations`
+
 # 0.2.1
 
 * Fix inverted `price` and `optional_price` in `document.sections`)

@@ -33,6 +33,9 @@ TESLA_BATCHES_QUOTE = load_definition_from_file(SAMPLE_DIR + "TESLA-BATCHES/quot
 TESLA_QUANTITIES_QUOTE = load_definition_from_file(
     SAMPLE_DIR + "TESLA-QUANTITIES/quote.yml"
 )
+COMMERCE_NESTED_OPTIONAL_QUOTE = load_definition_from_file(
+    SAMPLE_DIR + "NESTED-OPTIONAL/quote.yml"
+)
 
 # TODO Make an universal data validation framework.
 QUOTE_MANDATORY_ENTRIES = [
@@ -286,6 +289,7 @@ def test_parse_quote_with_optional_sections():
     # The not flattened representation.
     assert len(quote["prestations"]) == 3
     assert len(quote["sections"]) == 2
+    pprint.pprint(quote["optional_prestations"])
     assert len(quote["optional_prestations"]) == 2
     assert len(quote["optional_sections"]) == 1
     assert quote["price"]["total_vat_excl"] == 40000
@@ -328,6 +332,38 @@ def test_parse_quote_with_quantities():
     assert quote["prestations"][1]["total"] == 30000
     assert quote["prestations"][1]["optional"] is False
     assert quote["prestations"][1]["quantity"] == 3
+
+
+
+def test_parse_nested_section_quote_with_optional():
+    """
+    Parse a quote definition with nested (in section) optional prestations.
+    """
+    quote = parse_quote(COMMERCE_NESTED_OPTIONAL_QUOTE)
+    checkQuote(quote)
+    assert quote["title"] == "Configurateur de Tesla Model 3"
+    assert quote["price"]["total_vat_excl"] == 23940
+    assert len(quote["prestations"]) == 2
+    assert quote["optional_price"]["total_vat_excl"] == 400
+    assert len(quote["all_prestations"]) == 5
+    assert len(quote["optional_prestations"]) == 2
+    assert quote["has_quantities"] is True
+    assert quote["all_prestations"][2]["title"] == "Fonction spécial optionnelle n°1"
+    assert quote["all_prestations"][2]["total"] == 320
+    assert quote["all_prestations"][2]["optional"] is True
+    assert (
+        quote["optional_prestations"][0]["title"]
+        == "Fonction spécial optionnelle n°1"
+    )
+    assert quote["optional_prestations"][0]["price"] == 80
+    assert quote["optional_prestations"][0]["optional"] is True
+    assert quote["sections"][0]["price"]["total_vat_excl"] == 19540
+    assert quote["sections"][0]["optional_price"]["total_vat_excl"] == 19940
+    assert quote["sections"][0]["optional"] == False
+    assert quote["sections"][1]["price"]["total_vat_excl"] == 4400
+    assert quote["sections"][1]["optional_price"]["total_vat_excl"] == 4400
+    assert quote["sections"][1]["optional"] == False
+
 
 
 # ------------------------------------------------------------------------------
