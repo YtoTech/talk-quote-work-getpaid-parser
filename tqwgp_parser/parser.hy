@@ -6,7 +6,8 @@
     :copyright: (c) 2017-2021 Yoan Tournade.
 """
 (import os)
-(import [.utils [*]])
+(import .utils *)
+(import hyrule [reduce])
 
 ;; Data parsing and normalization.
 

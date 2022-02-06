@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 hy = ">=1.0a2"
 toolz = "*"
+hyrule = "*"
 
 [dev-packages]
 black = "*"

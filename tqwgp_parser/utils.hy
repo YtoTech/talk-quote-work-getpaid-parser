@@ -1,7 +1,8 @@
 ; (require [hy.extra.anaphoric [ap-each]])
 
 (import copy)
-(import [toolz.itertoolz [drop]])
+(import toolz.itertoolz [drop])
+(require hyrule [assoc])
 
 ; Predicates.
 

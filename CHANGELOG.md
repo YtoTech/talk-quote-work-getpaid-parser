@@ -1,3 +1,7 @@
+# 0.3.0
+
+* Migrate to [Hy 1.0a4](https://github.com/hylang/hy/releases/tag/1.0a4) and support Python 3.10
+
 # 0.2.2
 
 * Fix counts optional prestations inside sections for `optional_prestations`
