@@ -7,6 +7,9 @@ name = "pypi"
 hy = ">=1.0a2"
 toolz = "*"
 hyrule = "*"
+click = "*"
+pyyaml = "*"
+toml = "*"
 
 [dev-packages]
 black = "*"

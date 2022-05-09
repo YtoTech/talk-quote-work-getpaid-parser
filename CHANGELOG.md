@@ -1,3 +1,7 @@
+# 0.4.0
+
+* Introduce statistics feature, allowing to parse a directory of invoices and generating revenue statistics (experimental)
+
 # 0.3.0
 
 * Migrate to [Hy 1.0a4](https://github.com/hylang/hy/releases/tag/1.0a4) and support Python 3.10
