@@ -1,6 +1,7 @@
 # 0.4.0
 
 * Introduce statistics feature, allowing to parse a directory of invoices and generating revenue statistics (experimental)
+    * To use it, run `tqwgp stats <project(s)_dir>`, `tqwgp show <project(s)_dir>` or `tqwgp csv --extract=invoices <project(s)_dir>`
 
 # 0.3.0
 

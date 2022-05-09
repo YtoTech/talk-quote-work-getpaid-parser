@@ -11,6 +11,7 @@
 import os
 import sys
 import os.path
+import csv as csv_lib
 import click
 import codecs
 import pprint
@@ -173,7 +174,6 @@ def cli():
     default="",
     help="The projects base path from which the project specifier refer.",
 )
-# TODO Enable recursive.
 @click.option("--verbose", "-v", is_flag=True, help="Print more output.", default=False)
 @click.option("--debug", is_flag=True, help="Disable stdout capturing.", default=False)
 @click.option("--enable-parsing/--disable-parsing", default=True)
@@ -206,6 +206,78 @@ def show(
         debug=debug,
     )
     pprint.pprint(final_ouput)
+
+
+@cli.command()
+@click.argument("project_specifier")
+@click.option(
+    "--file-format",
+    type=click.Choice(["yaml", "json", "toml"], case_sensitive=False),
+    default="yaml",
+)
+@click.option(
+    "--extract",
+    type=click.Choice(["invoices"], case_sensitive=False),
+    default="invoices",
+)
+@click.option("-v", "--verbose", default=False, help="Verbose mode")
+@click.option(
+    "--projects-base-path",
+    default="",
+    help="The projects base path from which the project specifier refer.",
+)
+@click.option("--verbose", "-v", is_flag=True, help="Print more output.", default=False)
+@click.option("--debug", is_flag=True, help="Disable stdout capturing.", default=False)
+@click.option(
+    "--recursive",
+    "-r",
+    is_flag=True,
+    help="Enable recursive documents discovery (from the project specifier).",
+    default=False,
+)
+def csv(
+    project_specifier,
+    file_format="yaml",
+    extract="invoices",
+    projects_base_path="",
+    verbose=False,
+    enable_parsing=True,
+    recursive=False,
+    debug=False,
+):
+    """Load and extract parsed documents to CSV for the project specifier"""
+    loaded_documents = discover_and_loads_documents(
+        project_specifier,
+        file_format=file_format,
+        projects_base_path=projects_base_path,
+        verbose=verbose,
+        enable_parsing=True,
+        recursive=recursive,
+        debug=debug,
+    )
+    csv_ouput = io.StringIO()
+    csv_writer = csv_lib.writer(csv_ouput, quoting=csv_lib.QUOTE_MINIMAL)
+    csv_writer.writerow([
+        "Project", "Reference", "Date", "Title", "Provider name", "Client name", "Total excl VAT",
+        
+        "VAT amount", "Total incl VAT", "Lines count"
+    ])
+    for document in loaded_documents["documents"]:
+        if document["document_type"] == "invoice":
+            for invoice in document["parsed_document"]["invoices"]:
+                csv_writer.writerow([
+                    document["project_name"],
+                    invoice["number"],
+                    invoice["date"],
+                    invoice["title"],
+                    invoice["sect"]["name"],
+                    invoice["client"]["name"],
+                    invoice["price"]["total_vat_excl"],
+                    invoice["price"]["vat"],
+                    invoice["price"]["total_vat_incl"],
+                    len(invoice["lines"]),
+                ])
+    print(csv_ouput.getvalue())
 
 
 @cli.command()
