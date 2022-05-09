@@ -9,6 +9,7 @@
     :copyright: (c) 2021 Yoan Tournade.
 """
 import os
+import sys
 import os.path
 import click
 import codecs
@@ -106,9 +107,10 @@ def discover_and_loads_documents(
     verbose=False,
     enable_parsing=True,
     recursive=False,
+    debug=False,
 ):
     debug_ouput = ""
-    debug_ouput_io = io.StringIO()
+    debug_ouput_io = io.StringIO() if not debug else sys.stdout
     loaded_documents = []
     with redirect_stdout(debug_ouput_io):
         if recursive:
@@ -141,7 +143,7 @@ def discover_and_loads_documents(
                             enable_parsing=enable_parsing,
                         )
                     )
-    debug_ouput = debug_ouput_io.getvalue()
+    debug_ouput = debug_ouput_io.getvalue() if not debug else None
 
     final_ouput = {"documents": loaded_documents}
     if verbose:
@@ -173,6 +175,7 @@ def cli():
 )
 # TODO Enable recursive.
 @click.option("--verbose", "-v", is_flag=True, help="Print more output.", default=False)
+@click.option("--debug", is_flag=True, help="Disable stdout capturing.", default=False)
 @click.option("--enable-parsing/--disable-parsing", default=True)
 @click.option(
     "--recursive",
@@ -188,6 +191,7 @@ def show(
     verbose=False,
     enable_parsing=True,
     recursive=False,
+    debug=False,
 ):
     """Load and show parsed documents for the project specifier"""
     # TODO Arg to open only certain types.
@@ -199,6 +203,7 @@ def show(
         verbose=verbose,
         enable_parsing=enable_parsing,
         recursive=recursive,
+        debug=debug,
     )
     pprint.pprint(final_ouput)
 
@@ -217,6 +222,7 @@ def show(
     help="The projects base path from which the project specifier refer.",
 )
 @click.option("--verbose", "-v", is_flag=True, help="Print more output.", default=False)
+@click.option("--debug", is_flag=True, help="Disable stdout capturing.", default=False)
 @click.option(
     "--recursive",
     "-r",
@@ -230,6 +236,7 @@ def stats(
     projects_base_path="",
     verbose=False,
     recursive=False,
+    debug=False,
 ):
     """Load and process documents statistics for the project specifier"""
     loaded_documents = discover_and_loads_documents(
@@ -239,8 +246,11 @@ def stats(
         verbose=verbose,
         enable_parsing=True,
         recursive=recursive,
+        debug=debug,
     )
     BASE_STATS = {
+        # TODO Start date, end date
+        # TODO Date filter.
         "total_vat_excl": 0,
         "total_vat_incl": 0,
         "vat": 0,

@@ -273,6 +273,7 @@
   (parse-dict-values definition
     ["author" "sect" "client" "legal" "invoices"]
     [])
+  (setv invoices (get definition "invoices"))
   {
-    "invoices" (list (map parse-invoice-closure (get definition "invoices")))
+    "invoices" (list (map parse-invoice-closure (if invoices invoices [])))
   })
