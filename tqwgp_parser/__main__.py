@@ -19,6 +19,7 @@ import yaml
 import json
 import toml
 import io
+import pendulum
 from contextlib import redirect_stdout
 from .files.loaders import load_document_from_project, load_document_with_inheritance
 from . import parse_quote, parse_invoices
@@ -235,6 +236,21 @@ def show(
     help="Enable recursive documents discovery (from the project specifier).",
     default=False,
 )
+@click.option(
+    "--date-format",
+    default="YYYY-MM-DD",
+    help="The date format used for parsing dates (using Pendulum). Set to None to disable altogether.",
+)
+@click.option(
+    "--date-locale",
+    default="en",
+    help="The date locale used for parsing dates (using Pendulum).",
+)
+@click.option(
+    "--date-csv-format",
+    default="YYYY-MM-DD",
+    help="The date format to use in CSV export (using Pendulum).",
+)
 def csv(
     project_specifier,
     file_format="yaml",
@@ -244,6 +260,9 @@ def csv(
     enable_parsing=True,
     recursive=False,
     debug=False,
+    date_format=None,
+    date_locale=None,
+    date_csv_format=None,
 ):
     """Load and extract parsed documents to CSV for the project specifier"""
     loaded_documents = discover_and_loads_documents(
@@ -258,25 +277,45 @@ def csv(
     csv_ouput = io.StringIO()
     csv_writer = csv_lib.writer(csv_ouput, quoting=csv_lib.QUOTE_MINIMAL)
     csv_writer.writerow([
-        "Project", "Reference", "Date", "Title", "Provider name", "Client name", "Total excl VAT",
+        "Project", "Reference", "Date (input)", "Date (parsed)", "Title", "Provider name", "Client name", "Total excl VAT",
         
         "VAT amount", "Total incl VAT", "Lines count"
     ])
+    all_invoices = []
     for document in loaded_documents["documents"]:
         if document["document_type"] == "invoice":
             for invoice in document["parsed_document"]["invoices"]:
-                csv_writer.writerow([
-                    document["project_name"],
-                    invoice["number"],
-                    invoice["date"],
-                    invoice["title"],
-                    invoice["sect"]["name"],
-                    invoice["client"]["name"],
-                    invoice["price"]["total_vat_excl"],
-                    invoice["price"]["vat"],
-                    invoice["price"]["total_vat_incl"],
-                    len(invoice["lines"]),
-                ])
+                all_invoices.append({
+                    "invoice": invoice,
+                    "document": document,
+                    # TODO Include date parsing in core parser.
+                    # Allows to set format in definitions?
+                    # "DD MMMM YYYY"
+                    "parsed_date": pendulum.from_format(invoice["date"], date_format, locale=date_locale) if date_format else None,
+                })
+    if date_format:
+        # By date.
+        sorted_invoices = sorted(all_invoices, key=lambda i: i['parsed_date'])
+    else:
+        # By reference.
+        sorted_invoices = sorted(all_invoices, key=lambda i: i['invoice']['number'])
+    for invoice_entry in sorted_invoices:
+        invoice = invoice_entry["invoice"]
+        document = invoice_entry["document"]
+        csv_writer.writerow([
+            document["project_name"],
+            invoice["number"],
+            invoice["date"],
+            invoice_entry["parsed_date"].format(date_csv_format) if invoice_entry["parsed_date"] and date_csv_format else "-",
+            invoice["title"],
+            invoice["sect"]["name"],
+            invoice["client"]["name"],
+            # TODO Options to round, change numeric character (,.), ...
+            invoice["price"]["total_vat_excl"],
+            invoice["price"]["vat"],
+            invoice["price"]["total_vat_incl"],
+            len(invoice["lines"]),
+        ])
     print(csv_ouput.getvalue())
 
 
