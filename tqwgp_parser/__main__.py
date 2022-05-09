@@ -46,37 +46,13 @@ DEFAULT_FILE_FORMAT_PARSERS = {
     },
 }
 
-# CLI declaration.
-@click.group()
-def cli():
-    pass
-
-
-@cli.command()
-@click.argument("project_specifier")
-@click.option(
-    "--file-format",
-    type=click.Choice(["yaml", "json", "toml"], case_sensitive=False),
-    default="yaml",
-)
-@click.option("-v", "--verbose", default=False, help="Verbose mode")
-@click.option(
-    "--projects-base-path",
-    default="",
-    help="The projects base path from which the project specifier refer.",
-)
-@click.option("--verbose", "-v", is_flag=True, help="Print more output.", default=False)
-@click.option("--enable-parsing/--disable-parsing", default=True)
-def show(
+def discover_and_loads_documents(
     project_specifier,
     file_format="yaml",
     projects_base_path="",
     verbose=False,
     enable_parsing=True,
 ):
-    """Load and show parsed documents for the project specifier"""
-    # TODO Arg to open only certain types.
-    # TODO Arg to specify default_document_path?
     debug_ouput = ""
     debug_ouput_io = io.StringIO()
     with redirect_stdout(debug_ouput_io):
@@ -132,7 +108,116 @@ def show(
             **final_ouput,
             "debug_ouput": debug_ouput,
         }
+    return final_ouput
+
+# CLI declaration.
+@click.group()
+def cli():
+    pass
+
+
+@cli.command()
+@click.argument("project_specifier")
+@click.option(
+    "--file-format",
+    type=click.Choice(["yaml", "json", "toml"], case_sensitive=False),
+    default="yaml",
+)
+@click.option("-v", "--verbose", default=False, help="Verbose mode")
+@click.option(
+    "--projects-base-path",
+    default="",
+    help="The projects base path from which the project specifier refer.",
+)
+# TODO Enable recursive.
+@click.option("--verbose", "-v", is_flag=True, help="Print more output.", default=False)
+@click.option("--enable-parsing/--disable-parsing", default=True)
+def show(
+    project_specifier,
+    file_format="yaml",
+    projects_base_path="",
+    verbose=False,
+    enable_parsing=True,
+    return_python=False,
+):
+    """Load and show parsed documents for the project specifier"""
+    # TODO Arg to open only certain types.
+    # TODO Arg to specify default_document_path?
+    final_ouput = discover_and_loads_documents(
+        project_specifier,
+        file_format=file_format,
+        projects_base_path=projects_base_path,
+        verbose=verbose,
+        enable_parsing=enable_parsing,
+    )
+    if return_python:
+        return final_ouput
     pprint.pprint(final_ouput)
+
+
+@cli.command()
+@click.argument("project_specifier")
+@click.option(
+    "--file-format",
+    type=click.Choice(["yaml", "json", "toml"], case_sensitive=False),
+    default="yaml",
+)
+@click.option("-v", "--verbose", default=False, help="Verbose mode")
+@click.option(
+    "--projects-base-path",
+    default="",
+    help="The projects base path from which the project specifier refer.",
+)
+@click.option("--verbose", "-v", is_flag=True, help="Print more output.", default=False)
+def stats(
+    project_specifier,
+    file_format="yaml",
+    projects_base_path="",
+    verbose=False,
+):
+    """Load and process documents statistics for the project specifier"""
+    loaded_documents = discover_and_loads_documents(
+        project_specifier,
+        file_format=file_format,
+        projects_base_path=projects_base_path,
+        verbose=verbose,
+        enable_parsing=True,
+    )
+    BASE_STATS = {
+        "total_vat_excl": 0,
+        "total_vat_incl": 0,
+        "vat": 0,
+        # TODO Var rate.
+        "count": 0,
+        "lines_count": 0,
+    }
+    statistics = {}
+    def add_to_stats(current_stats, parsed_document):
+        if not parsed_document.get("price"):
+            return current_stats
+        return {
+            **current_stats,
+            "total_vat_excl": current_stats["total_vat_excl"] + parsed_document["price"]["total_vat_excl"],
+            "total_vat_incl": current_stats["total_vat_incl"] + parsed_document["price"]["total_vat_incl"],
+            "vat": current_stats["vat"] + parsed_document["price"]["vat"],
+            "count": current_stats["count"] + 1,
+            "lines_count": current_stats["lines_count"] + (
+                len(parsed_document.get("lines", []))
+                or len(parsed_document.get("prestations", []))
+            ),
+        }
+    for document in loaded_documents["documents"]:
+        stat_key = f"{document['document_type']}s"
+        if stat_key not in statistics:
+            statistics[stat_key] = {
+                **BASE_STATS,
+            }
+        if document['document_type'] == "invoice":
+            for invoice in document["parsed_document"]["invoices"]:
+                statistics[stat_key] = add_to_stats(statistics[stat_key], invoice)
+        else:
+            statistics[stat_key] = add_to_stats(statistics[stat_key], document["parsed_document"])
+    pprint.pprint(statistics)
 
 
 if __name__ == "__main__":
