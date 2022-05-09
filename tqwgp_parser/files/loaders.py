@@ -11,8 +11,10 @@ import pathlib
 
 
 def load_document_from_project(
-    project_specifier, default_projects_dir=None, default_document_path=None,
-    throw_error=True
+    project_specifier,
+    default_projects_dir=None,
+    default_document_path=None,
+    throw_error=True,
 ):
     project_path = None
     project_name = None
@@ -29,7 +31,9 @@ def load_document_from_project(
         project_name = project_specifier
         project_path = default_projects_dir
     if not project_path:
-        error_str = "No project directory found for specified {}".format(project_specifier)
+        error_str = "No project directory found for specified {}".format(
+            project_specifier
+        )
         if throw_error:
             raise ValueError(error_str)
         return "value_error", error_str, None, None
