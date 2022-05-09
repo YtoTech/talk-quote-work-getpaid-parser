@@ -9,7 +9,7 @@ with open("README.md") as f:
 
 setup(
     name="tqwgp-parser",
-    version="0.3.0",
+    version="0.4.0",
     url="https://github.com/YtoTech/talk-quote-work-getpaid-parser",
     license="AGPL-3.0",
     author="Yoan Tournade",
@@ -17,6 +17,9 @@ setup(
     description="A library for parsing Talk Quote Work Get-Paid (TQWGP) text-based compliant sales and accounting documents.",
     long_description=readme_markdown,
     long_description_content_type="text/markdown",
+    # TODO console_scripts?
+    # https://python-packaging.readthedocs.io/en/latest/command-line-scripts.html
+    scripts=["scripts/tqwgp"],
     packages=["tqwgp_parser"],
     include_package_data=True,
     package_data={

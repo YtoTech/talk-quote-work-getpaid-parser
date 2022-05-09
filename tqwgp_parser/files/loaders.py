@@ -11,7 +11,8 @@ import pathlib
 
 
 def load_document_from_project(
-    project_specifier, default_projects_dir=None, default_document_path=None
+    project_specifier, default_projects_dir=None, default_document_path=None,
+    throw_error=True
 ):
     project_path = None
     project_name = None
@@ -28,20 +29,23 @@ def load_document_from_project(
         project_name = project_specifier
         project_path = default_projects_dir
     if not project_path:
-        raise ValueError(
-            "No project directory found for specified {}".format(project_specifier)
-        )
+        error_str = "No project directory found for specified {}".format(project_specifier)
+        if throw_error:
+            raise ValueError(error_str)
+        return "value_error", error_str, None, None
     if not document_path and default_document_path:
         # We should look for the default document path in
         # the project directory.
         document_path = os.path.join(project_path, default_document_path)
     if not os.path.isfile(document_path):
-        raise ValueError(
-            "No document found for project path and specified {}:{}".format(
-                project_path,
-                project_specifier,
-            )
+        error_str = "No document found for project path and specifier {}:{} (default path: {})".format(
+            project_path,
+            project_specifier,
+            default_document_path,
         )
+        if throw_error:
+            raise ValueError(error_str)
+        return "value_error", error_str, None, None
     project_path = os.path.realpath(project_path)
     document_path = os.path.realpath(document_path)
     # Extract project name.
@@ -49,12 +53,15 @@ def load_document_from_project(
         -2 if project_path[-1] == "/" else -1
     ]
     if project_name and project_name != extracted_project_name:
-        raise ValueError(
-            "Project names mismatched; provided: {}; extract: {}".format(
-                project_name, extracted_project_name
-            )
+        error_str = "Project names mismatched; provided: {}; extract: {}".format(
+            project_name, extracted_project_name
         )
-    return project_path, document_path, extracted_project_name
+        if throw_error:
+            raise ValueError(error_str)
+        return "value_error", error_str, None, None
+    if throw_error:
+        return project_path, document_path, extracted_project_name
+    return "ok", project_path, document_path, extracted_project_name
 
 
 def load_document_with_inheritance(
