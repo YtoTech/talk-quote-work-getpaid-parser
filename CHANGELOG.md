@@ -1,3 +1,7 @@
+# 0.4.2
+
+* Missing `__init__.py` for module `tqwgp_parser.files`
+
 # 0.4.1
 
 * Fix missing dependencies
