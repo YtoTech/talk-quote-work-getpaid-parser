@@ -1,3 +1,7 @@
+# 0.4.1
+
+* Fix missing dependencies
+
 # 0.4.0
 
 * Introduce statistics feature, allowing to parse a directory of invoices and generating revenue statistics (experimental)

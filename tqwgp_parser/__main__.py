@@ -276,46 +276,66 @@ def csv(
     )
     csv_ouput = io.StringIO()
     csv_writer = csv_lib.writer(csv_ouput, quoting=csv_lib.QUOTE_MINIMAL)
-    csv_writer.writerow([
-        "Project", "Reference", "Date (input)", "Date (parsed)", "Title", "Provider name", "Client name", "Total excl VAT",
-        
-        "VAT amount", "Total incl VAT", "Lines count"
-    ])
+    csv_writer.writerow(
+        [
+            "Project",
+            "Reference",
+            "Date (input)",
+            "Date (parsed)",
+            "Title",
+            "Provider name",
+            "Client name",
+            "Total excl VAT",
+            "VAT amount",
+            "Total incl VAT",
+            "Lines count",
+        ]
+    )
     all_invoices = []
     for document in loaded_documents["documents"]:
         if document["document_type"] == "invoice":
             for invoice in document["parsed_document"]["invoices"]:
-                all_invoices.append({
-                    "invoice": invoice,
-                    "document": document,
-                    # TODO Include date parsing in core parser.
-                    # Allows to set format in definitions?
-                    # "DD MMMM YYYY"
-                    "parsed_date": pendulum.from_format(invoice["date"], date_format, locale=date_locale) if date_format else None,
-                })
+                all_invoices.append(
+                    {
+                        "invoice": invoice,
+                        "document": document,
+                        # TODO Include date parsing in core parser.
+                        # Allows to set format in definitions?
+                        # "DD MMMM YYYY"
+                        "parsed_date": pendulum.from_format(
+                            invoice["date"], date_format, locale=date_locale
+                        )
+                        if date_format
+                        else None,
+                    }
+                )
     if date_format:
         # By date.
-        sorted_invoices = sorted(all_invoices, key=lambda i: i['parsed_date'])
+        sorted_invoices = sorted(all_invoices, key=lambda i: i["parsed_date"])
     else:
         # By reference.
-        sorted_invoices = sorted(all_invoices, key=lambda i: i['invoice']['number'])
+        sorted_invoices = sorted(all_invoices, key=lambda i: i["invoice"]["number"])
     for invoice_entry in sorted_invoices:
         invoice = invoice_entry["invoice"]
         document = invoice_entry["document"]
-        csv_writer.writerow([
-            document["project_name"],
-            invoice["number"],
-            invoice["date"],
-            invoice_entry["parsed_date"].format(date_csv_format) if invoice_entry["parsed_date"] and date_csv_format else "-",
-            invoice["title"],
-            invoice["sect"]["name"],
-            invoice["client"]["name"],
-            # TODO Options to round, change numeric character (,.), ...
-            invoice["price"]["total_vat_excl"],
-            invoice["price"]["vat"],
-            invoice["price"]["total_vat_incl"],
-            len(invoice["lines"]),
-        ])
+        csv_writer.writerow(
+            [
+                document["project_name"],
+                invoice["number"],
+                invoice["date"],
+                invoice_entry["parsed_date"].format(date_csv_format)
+                if invoice_entry["parsed_date"] and date_csv_format
+                else "-",
+                invoice["title"],
+                invoice["sect"]["name"],
+                invoice["client"]["name"],
+                # TODO Options to round, change numeric character (,.), ...
+                invoice["price"]["total_vat_excl"],
+                invoice["price"]["vat"],
+                invoice["price"]["total_vat_incl"],
+                len(invoice["lines"]),
+            ]
+        )
     print(csv_ouput.getvalue())
 
 
