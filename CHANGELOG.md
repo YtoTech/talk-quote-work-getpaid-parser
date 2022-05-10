@@ -1,6 +1,10 @@
+# 0.4.3
+
+* Fix `setup.py` to include `tqwgp_parser.files` module files
+
 # 0.4.2
 
-* Missing `__init__.py` for module `tqwgp_parser.files`
+* Missing `__init__.py` for module `tqwgp_parser.files` (wrong fix)
 
 # 0.4.1
 
