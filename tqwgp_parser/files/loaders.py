@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    tqwgp-parser.loaders
+    tqwgp-parser.files.loaders
     ~~~~~~~~~~~~~~~~~~~~~
     Files / projects loading facilities for the TQWGP parser.
 
