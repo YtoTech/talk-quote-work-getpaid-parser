@@ -255,6 +255,23 @@ def test_parse_simple_quote_tva():
     assert quote["price"]["total_vat_incl"] == 48000
 
 
+def test_parse_simple_quote_rounding():
+    """
+    Prestation prices are rounded by default.
+    """
+    definition = copy.deepcopy(TESLA_16_01_QUOTE)
+    definition["vat_rate"] = 20
+    definition["prestations"][0]["price"] = 2329.33
+    quote = parse_quote(definition)
+    checkQuote(quote)
+    assert len(quote["prestations"]) == 4
+    assert quote["vat_rate"] == 20
+    assert quote["prestations"][0]["price"] == 2329.33
+    assert quote["price"]["total_vat_excl"] == 37329.33
+    assert quote["price"]["vat"] == 7465.87
+    assert quote["price"]["total_vat_incl"] == 44795.2
+
+
 def test_parse_simple_quote_no_optional_tva():
     """
     Parse a simple quote definition which include VAT but no optional.

@@ -11,7 +11,7 @@
 
 ;; Data parsing and normalization.
 
-(defn parse-all-prestations [prestations vat-rate [section None]]
+(defn parse-all-prestations [prestations vat-rate options [section None]]
   """
   Parse all prestations, returning a flattened list of prestations (in all-prestations)
   and a list of sections.
@@ -24,8 +24,8 @@
     (if (in "prestations" prestation)
       (do
         (setv section-prestations
-          (get (parse-all-prestations (get prestation "prestations") vat-rate prestation) 0))
-        (.append sections (parse-section prestation section-prestations vat-rate))
+          (get (parse-all-prestations (get prestation "prestations") vat-rate options prestation) 0))
+        (.append sections (parse-section prestation section-prestations vat-rate options))
         (.extend all-prestations section-prestations))
       (.append all-prestations (parse-prestation prestation section))
     )) prestation))
@@ -44,22 +44,28 @@
       "optional" (get-default prestation "optional" (get-default (if (none? section) {} section) "optional" False))
     }]))
 
-(defn parse-section [section prestations vat-rate]
+(defn parse-section [section prestations vat-rate options]
   (merge-dicts [
     (parse-dict-values section
       ["title" "prestations"]
       ["description" "batch"])
     {
       "prestations" prestations
-      "price" (compute-price-vat prestations :count-optional False :vat-rate vat-rate)
-      "optional_price" (compute-price-vat prestations :count-optional True :vat-rate vat-rate)
+      "price" (compute-price-vat prestations
+        :count-optional False
+        :vat-rate vat-rate
+        :rounding-decimals (get options "rounding-decimals"))
+      "optional_price" (compute-price-vat prestations
+        :count-optional True
+        :vat-rate vat-rate
+        :rounding-decimals (get options "rounding-decimals"))
       ;; TODO Normalize batch here: only set if all section prestation has same batch
       ;; (alternative: set a list of batches).
       "batch" (parse-batch (get-default section "batch" None))
       "optional" (get-default section "optional" False)
     }]))
 
-(defn compute-price [prestations [count-optional False]]
+(defn compute-price [prestations [count-optional False] [rounding-decimals None]]
   """
   Parse price of a flattened list of prestations
   (actually any list with object containing a price property),
@@ -67,41 +73,50 @@
   """
   ;; Must accept (but ignore for total) None and string values.
   ;; Set to None if no price defined at all.
-  (reduce
-    (fn [total prestation]
-      (setv price (get prestation "price"))
-      (setv add-price (and (numeric? price) (or count-optional (not (get-default prestation "optional" False)))))
-      (setv prestation-total (if (numeric? price) (* price (get-default prestation "quantity" 1))))
-      (cond
-        [(and add-price (numeric? total))
-          (+ total prestation-total)]
-        [add-price
-          prestation-total]
-        [True
-          total]))
-    prestations
-    None))
+  (rounded-number
+    (reduce
+      (fn [total prestation]
+        (setv price (get prestation "price"))
+        (setv add-price (and (numeric? price) (or count-optional (not (get-default prestation "optional" False)))))
+        (setv prestation-total (if (numeric? price) (* price (get-default prestation "quantity" 1))))
+        (cond
+          [(and add-price (numeric? total))
+            (+ total prestation-total)]
+          [add-price
+            prestation-total]
+          [True
+            total]))
+      prestations
+      None)
+    rounding-decimals))
 
-(defn compute-vat [price vat-rate]
+(defn compute-vat [price vat-rate [rounding-decimals None]]
   """
   Compute VAT part on a numerical price.
   vat-rate is represented as an integer percent points value, for e.g. 20 for a 20 % VAT rate.
   """
-  (simplest-numerical-format (* (/ vat-rate 100) price)))
+  (rounded-number
+    (simplest-numerical-format (* (/ vat-rate 100) price))
+    rounding-decimals))
 
-(defn compute-price-vat [prestations [count-optional False] [vat-rate None]]
+(defn compute-price-vat [prestations [count-optional False] [vat-rate None] [rounding-decimals None]]
   """
   Compute price, as an object including VAT component, total with VAT excluded, total with VAT included ;
   from a list of objects containing a price (numerical) property.
   """
   ;; TODO Handle price object in element list, taking total_vat_excl for the summation?
-  (setv total-vat-excl (compute-price prestations :count-optional count-optional))
+  (setv total-vat-excl (compute-price prestations
+    :count-optional count-optional
+    :rounding-decimals rounding-decimals))
   (if (numeric? vat-rate)
     (do
-      (setv vat (if (none? total-vat-excl) None (compute-vat total-vat-excl vat-rate)))
+      (setv vat (if (none? total-vat-excl) None (compute-vat total-vat-excl vat-rate
+        :rounding-decimals rounding-decimals)))
       {
         "vat" vat
-        "total_vat_incl" (if (none? total-vat-excl) None (+ total-vat-excl vat))
+        "total_vat_incl" (if (none? total-vat-excl)
+          None
+          (rounded-number (+ total-vat-excl vat) rounding-decimals))
         "total_vat_excl" total-vat-excl
       }
     )
@@ -194,13 +209,19 @@
       "logo" (parse-logo (get-default sect "logo" None))
     }]))
 
-(defn parse-quote [definition]
+(defn parse-quote [definition #** kwargs]
   """
   Parse and normalize a quote definition.
   """
+  (setv options (merge-dicts [
+    {
+      "rounding-decimals" 2
+    }
+    kwargs
+  ]))
   (setv vat-rate (get-default definition "vat_rate" None))
   (setv (, all-prestations sections)
-    (parse-all-prestations (get definition "prestations") vat-rate))
+    (parse-all-prestations (get definition "prestations") vat-rate options))
   (setv (, all-optional-prestations optional-sections)
     (recompose-optional-prestations sections all-prestations))
   (setv has-quantities (any (map (fn [prestation] (> (get prestation "quantity") 1)) all-prestations)))
@@ -212,7 +233,9 @@
     {
       "sect" (parse-sect (get definition "sect"))
       "vat_rate" vat_rate
-      "price" (compute-price-vat all-prestations :vat-rate vat-rate)
+      "price" (compute-price-vat all-prestations
+        :vat-rate vat-rate
+        :rounding-decimals (get options "rounding-decimals"))
       ;; Derive sections from all-prestations (and sections too).
       "batches" (recompose-batches all-prestations)
       "all_prestations" all-prestations
@@ -222,23 +245,28 @@
       "prestations" (recompose-prestations sections all-prestations)
       "optional_prestations" all-optional-prestations
       "optional_sections" optional-sections
-      "optional_price" (compute-price-vat all-optional-prestations :count-optional True :vat-rate vat-rate)
+      "optional_price" (compute-price-vat all-optional-prestations
+        :count-optional True
+        :vat-rate vat-rate
+        :rounding-decimals (get options "rounding-decimals"))
       "display_project_reference" (none-or-true? (get-default definition "display_project_reference" True))
     }]))
 
-(defn parse-line [line]
+(defn parse-line [line options]
   (merge-dicts [
     (parse-dict-values line
       ["title" "price"]
       ["description" "quantity"])
     {
       "quantity" (get-default line "quantity" 1)
-      "total" (compute-price [line] :count-optional True)
+      "total" (compute-price [line]
+        :count-optional True
+        :rounding-decimals (get options "rounding-decimals"))
     }
   ]))
 
-(defn parse-invoice [invoice invoices]
-  (setv lines (list (map parse-line (get invoice "lines"))))
+(defn parse-invoice [invoice invoices options]
+  (setv lines (list (map (fn [line] (parse-line line options)) (get invoice "lines"))))
   (setv has-quantities (any (map (fn [line] (> (get line "quantity") 1)) lines)))
   (setv common-values (pick-by (fn [key]
     (in key ["author" "sect" "client" "legal" "vat_rate" "display_project_reference"])) invoices))
@@ -260,16 +288,24 @@
       "lines" lines
       "has_quantities" has-quantities
       "vat_rate" (get merged-invoice "vat_rate")
-      "price" (compute-price-vat lines :vat-rate (get merged-invoice "vat_rate"))
+      "price" (compute-price-vat lines
+        :vat-rate (get merged-invoice "vat_rate")
+        :rounding-decimals (get options "rounding-decimals"))
       "display_project_reference" (none-or-true? (get-default merged-invoice "display_project_reference" True))
     }]))
 
-(defn parse-invoices [definition]
+(defn parse-invoices [definition #** kwargs]
   """
   Parse and normalize invoices definition.
   """
+  (setv options (merge-dicts [
+    {
+      "rounding-decimals" 2
+    }
+    kwargs
+  ]))
   (defn parse-invoice-closure [invoice]
-    (parse-invoice invoice definition))
+    (parse-invoice invoice definition options))
   (parse-dict-values definition
     ["author" "sect" "client" "legal" "invoices"]
     [])

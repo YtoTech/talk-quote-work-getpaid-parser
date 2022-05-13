@@ -1,3 +1,7 @@
+# 0.5.0
+
+* Add a `rounding-decimals` kwarg to `parse_invoices` and `parse_quote`, which default to `2`
+
 # 0.4.3
 
 * Fix `setup.py` to include `tqwgp_parser.files` module files
