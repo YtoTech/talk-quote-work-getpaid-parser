@@ -9,6 +9,9 @@
 (defn numeric? [v]
   (isinstance v (, int float)))
 
+(defn string? [v]
+  (isinstance v (, str bytes)))
+
 (defn none? [v]
   (= v None))
 
@@ -68,6 +71,18 @@
     (get value key)
     default))
 
+(defn get-in [value key-path default]
+  (setv current-key (if (= (len key-path) 0) None (get key-path 0)))
+  (if (none? current-key)
+    default
+    (if (in current-key value)
+      (if (= (len key-path) 1)
+        (get value current-key)
+        (get-in
+          (get value current-key)
+          (cut key-path 1 None)
+          default))
+      default)))
 
 ; Lists.
 

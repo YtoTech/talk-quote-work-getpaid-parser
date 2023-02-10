@@ -27,17 +27,31 @@
           (get (parse-all-prestations (get prestation "prestations") vat-rate options prestation) 0))
         (.append sections (parse-section prestation section-prestations vat-rate options))
         (.extend all-prestations section-prestations))
-      (.append all-prestations (parse-prestation prestation section))
+      (.append all-prestations (parse-prestation prestation section options))
     )) prestation))
   (, all-prestations sections))
 
-(defn parse-prestation [prestation section]
+(defn apply-any-price-formula [price price-formula]
+  (if (and
+        (get-in price-formula ["enabled"] False)
+        (string? price)
+        (= (get price 0) "="))
+    (eval (cut price 1 None))
+    price))
+
+(defn parse-prestation [prestation section options]
   (merge-dicts [
     (parse-dict-values prestation
       ["title"]
       ["price" "quantity" "description" "batch" "optional"])
     {
-      "total" (compute-price [prestation] :count-optional True)
+      "price" (apply-any-price-formula
+        (get-default prestation "price" None)
+        (get options "price_formula"))
+      "total" (compute-price [prestation]
+        :count-optional True
+        :rounding-decimals (get options "rounding-decimals")
+        :price-formula (get options "price_formula"))
       "quantity" (get-default prestation "quantity" 1)
       "section" (get-default (if (none? section) {} section) "title" None)
       "batch" (parse-batch (get-default prestation "batch" (get-default (if (none? section) {} section) "batch" None)))
@@ -54,18 +68,23 @@
       "price" (compute-price-vat prestations
         :count-optional False
         :vat-rate vat-rate
-        :rounding-decimals (get options "rounding-decimals"))
+        :rounding-decimals (get options "rounding-decimals")
+        :price-formula (get options "price_formula"))
       "optional_price" (compute-price-vat prestations
         :count-optional True
         :vat-rate vat-rate
-        :rounding-decimals (get options "rounding-decimals"))
+        :rounding-decimals (get options "rounding-decimals")
+        :price-formula (get options "price_formula"))
       ;; TODO Normalize batch here: only set if all section prestation has same batch
       ;; (alternative: set a list of batches).
       "batch" (parse-batch (get-default section "batch" None))
       "optional" (get-default section "optional" False)
     }]))
 
-(defn compute-price [prestations [count-optional False] [rounding-decimals None]]
+(defn compute-price
+        [prestations
+          [count-optional False] [rounding-decimals None]
+          [price-formula {}]]
   """
   Parse price of a flattened list of prestations
   (actually any list with object containing a price property),
@@ -76,7 +95,7 @@
   (rounded-number
     (reduce
       (fn [total prestation]
-        (setv price (get prestation "price"))
+        (setv price (apply-any-price-formula (get prestation "price") price-formula))
         (setv add-price (and (numeric? price) (or count-optional (not (get-default prestation "optional" False)))))
         (setv prestation-total (if (numeric? price) (* price (get-default prestation "quantity" 1))))
         (cond
@@ -99,7 +118,10 @@
     (simplest-numerical-format (* (/ vat-rate 100) price))
     rounding-decimals))
 
-(defn compute-price-vat [prestations [count-optional False] [vat-rate None] [rounding-decimals None]]
+(defn compute-price-vat
+      [prestations
+        [count-optional False] [vat-rate None]
+        [rounding-decimals None] [price-formula {}]]
   """
   Compute price, as an object including VAT component, total with VAT excluded, total with VAT included ;
   from a list of objects containing a price (numerical) property.
@@ -107,7 +129,8 @@
   ;; TODO Handle price object in element list, taking total_vat_excl for the summation?
   (setv total-vat-excl (compute-price prestations
     :count-optional count-optional
-    :rounding-decimals rounding-decimals))
+    :rounding-decimals rounding-decimals
+    :price-formula price-formula))
   (if (numeric? vat-rate)
     (do
       (setv vat (if (none? total-vat-excl) None (compute-vat total-vat-excl vat-rate
@@ -209,6 +232,11 @@
       "logo" (parse-logo (get-default sect "logo" None))
     }]))
 
+(defn parse-parser-options [definition]
+  {"price_formula" {
+    "enabled" (get-in definition ["options" "price_formula" "enabled"] False)
+  }})
+
 (defn parse-quote [definition #** kwargs]
   """
   Parse and normalize a quote definition.
@@ -218,6 +246,7 @@
       "rounding-decimals" 2
     }
     kwargs
+    (parse-parser-options definition)
   ]))
   (setv vat-rate (get-default definition "vat_rate" None))
   (setv (, all-prestations sections)
@@ -235,7 +264,8 @@
       "vat_rate" vat_rate
       "price" (compute-price-vat all-prestations
         :vat-rate vat-rate
-        :rounding-decimals (get options "rounding-decimals"))
+        :rounding-decimals (get options "rounding-decimals")
+        :price-formula (get options "price_formula"))
       ;; Derive sections from all-prestations (and sections too).
       "batches" (recompose-batches all-prestations)
       "all_prestations" all-prestations
@@ -248,7 +278,8 @@
       "optional_price" (compute-price-vat all-optional-prestations
         :count-optional True
         :vat-rate vat-rate
-        :rounding-decimals (get options "rounding-decimals"))
+        :rounding-decimals (get options "rounding-decimals")
+        :price-formula (get options "price_formula"))
       "display_project_reference" (none-or-true? (get-default definition "display_project_reference" True))
     }]))
 
@@ -259,9 +290,13 @@
       ["description" "quantity"])
     {
       "quantity" (get-default line "quantity" 1)
+      "price" (apply-any-price-formula
+        (get-default line "price" None)
+        (get options "price_formula"))
       "total" (compute-price [line]
         :count-optional True
-        :rounding-decimals (get options "rounding-decimals"))
+        :rounding-decimals (get options "rounding-decimals")
+        :price-formula (get options "price_formula"))
     }
   ]))
 
@@ -290,7 +325,8 @@
       "vat_rate" (get merged-invoice "vat_rate")
       "price" (compute-price-vat lines
         :vat-rate (get merged-invoice "vat_rate")
-        :rounding-decimals (get options "rounding-decimals"))
+        :rounding-decimals (get options "rounding-decimals")
+        :price-formula (get options "price_formula"))
       "display_project_reference" (none-or-true? (get-default merged-invoice "display_project_reference" True))
     }]))
 
@@ -303,6 +339,7 @@
       "rounding-decimals" 2
     }
     kwargs
+    (parse-parser-options definition)
   ]))
   (defn parse-invoice-closure [invoice]
     (parse-invoice invoice definition options))
