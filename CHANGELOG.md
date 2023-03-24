@@ -1,3 +1,7 @@
+# 0.6.1
+
+* Add decimal number format arguments (`--decimals-csv-locale` and `--decimals-csv-format`) to statistics CSV ouput command
+
 # 0.6.0
 
 * Add a parser option `options.price_formula.enabled` in definition to be set to `True` for allowing to set price as formula. The formula starts with `=` and follow with valid Python code. For eg. `prestations.0.price: =1000*0.7` will yield a price of 700 on the first prestation.

@@ -20,6 +20,7 @@ import json
 import toml
 import io
 import pendulum
+import babel.numbers
 from contextlib import redirect_stdout
 from .files.loaders import load_document_from_project, load_document_with_inheritance
 from . import parse_quote, parse_invoices
@@ -251,6 +252,16 @@ def show(
     default="YYYY-MM-DD",
     help="The date format to use in CSV export (using Pendulum).",
 )
+@click.option(
+    "--decimals-csv-locale",
+    default="en",
+    help="The decimals locale to use in CSV export (using Babel).",
+)
+@click.option(
+    "--decimals-csv-format",
+    default="#.##",
+    help="The decimals format to use in CSV export (using Babel pattern syntax).",
+)
 def csv(
     project_specifier,
     file_format="yaml",
@@ -263,7 +274,16 @@ def csv(
     date_format=None,
     date_locale=None,
     date_csv_format=None,
+    decimals_csv_locale=None,
+    decimals_csv_format=None,
 ):
+    def format_decimal(number):
+        return babel.numbers.format_decimal(
+            number,
+            locale=decimals_csv_locale,
+            format=decimals_csv_format,
+        )
+
     """Load and extract parsed documents to CSV for the project specifier"""
     loaded_documents = discover_and_loads_documents(
         project_specifier,
@@ -329,10 +349,10 @@ def csv(
                 invoice["title"],
                 invoice["sect"]["name"],
                 invoice["client"]["name"],
-                # TODO Options to round, change numeric character (,.), ...
-                invoice["price"]["total_vat_excl"],
-                invoice["price"]["vat"],
-                invoice["price"]["total_vat_incl"],
+                # Options to round, change numeric character (,.), ...
+                format_decimal(invoice["price"]["total_vat_excl"]),
+                format_decimal(invoice["price"]["vat"]),
+                format_decimal(invoice["price"]["total_vat_incl"]),
                 len(invoice["lines"]),
             ]
         )

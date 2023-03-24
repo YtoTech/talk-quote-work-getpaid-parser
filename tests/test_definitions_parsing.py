@@ -271,6 +271,7 @@ def test_parse_simple_quote_rounding():
     assert quote["price"]["vat"] == 7465.87
     assert quote["price"]["total_vat_incl"] == 44795.2
 
+
 def test_parse_simple_quote_rounding():
     """
     Prestation prices can include formulas. (opt-in)
@@ -278,9 +279,7 @@ def test_parse_simple_quote_rounding():
     definition = copy.deepcopy(TESLA_16_01_QUOTE)
     definition["options"] = {
         **definition.get("options", {}),
-        "price_formula": {
-            "enabled": True
-        }
+        "price_formula": {"enabled": True},
     }
     definition["prestations"][0]["price"] = "=1000*0.3"
     quote = parse_quote(definition)

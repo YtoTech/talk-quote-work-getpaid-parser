@@ -11,6 +11,7 @@ click = "*"
 pyyaml = "*"
 toml = "*"
 pendulum = "*"
+babel = "*"
 
 [dev-packages]
 black = "*"
