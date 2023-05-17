@@ -19,6 +19,7 @@ pytest = "*"
 pyyaml = "*"
 twine = "*"
 setuptools = "*"
+wheel = "*"
 
 [requires]
 python_version = "3"
