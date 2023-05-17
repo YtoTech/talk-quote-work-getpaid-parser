@@ -3,7 +3,7 @@
     tqwgp-parser.parser
     ~~~~~~~~~~~~~~~~~~~~~
     Parse the definitions of TWWGP quotes and invoices.
-    :copyright: (c) 2017-2021 Yoan Tournade.
+    :copyright: (c) 2017-2023 Yoan Tournade <yoan@ytotech.com>.
 """
 (import os)
 (import .utils *)
@@ -29,7 +29,7 @@
         (.extend all-prestations section-prestations))
       (.append all-prestations (parse-prestation prestation section options))
     )) prestation))
-  (, all-prestations sections))
+  #(all-prestations sections))
 
 (defn apply-any-price-formula [price price-formula]
   (if (and
@@ -97,14 +97,14 @@
       (fn [total prestation]
         (setv price (apply-any-price-formula (get prestation "price") price-formula))
         (setv add-price (and (numeric? price) (or count-optional (not (get-default prestation "optional" False)))))
-        (setv prestation-total (if (numeric? price) (* price (get-default prestation "quantity" 1))))
+        (setv prestation-total (when (numeric? price) (* price (get-default prestation "quantity" 1))))
         (cond
-          [(and add-price (numeric? total))
-            (+ total prestation-total)]
-          [add-price
-            prestation-total]
-          [True
-            total]))
+          (and add-price (numeric? total))
+            (+ total prestation-total)
+          add-price
+            prestation-total
+          True
+            total))
       prestations
       None)
     rounding-decimals))
@@ -184,7 +184,7 @@
   (defn unique-batch-names [prestation]
     (reduce (fn [batches prestation]
     (setv batch (get prestation "batch"))
-    (if (and (not (none? batch)) (not (in batch batches)))
+    (when (and (not (none? batch)) (not (in batch batches)))
       (.append batches batch))
       batches) all-prestations []))
   ;; Get all prestations that match the name.
@@ -203,8 +203,7 @@
 
 (defn recompose-optional-prestations [sections all-prestations]
   "Recompose optional prestations: is equal to all optional sections and all optional non-section prestations."
-  (,
-    (list (filter (fn [prestation]
+  #((list (filter (fn [prestation]
                     (and (is-optional? prestation) (not (has-optional-section? prestation))))
           all-prestations))
     (list (filter is-optional? sections))))
@@ -249,9 +248,9 @@
     (parse-parser-options definition)
   ]))
   (setv vat-rate (get-default definition "vat_rate" None))
-  (setv (, all-prestations sections)
+  (setv #(all-prestations sections)
     (parse-all-prestations (get definition "prestations") vat-rate options))
-  (setv (, all-optional-prestations optional-sections)
+  (setv #(all-optional-prestations optional-sections)
     (recompose-optional-prestations sections all-prestations))
   (setv has-quantities (any (map (fn [prestation] (> (get prestation "quantity") 1)) all-prestations)))
   (merge-dicts [

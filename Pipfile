@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-hy = ">=1.0a2"
+hy = ">=0.26.0"
 toolz = "*"
 hyrule = "*"
 click = "*"
@@ -18,6 +18,7 @@ black = "*"
 pytest = "*"
 pyyaml = "*"
 twine = "*"
+setuptools = "*"
 
 [requires]
 python_version = "3"

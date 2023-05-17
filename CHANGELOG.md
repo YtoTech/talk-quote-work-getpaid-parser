@@ -1,3 +1,7 @@
+# 0.6.2
+
+* Migrate to Hy `>= 0.26`
+
 # 0.6.1
 
 * Add decimal number format arguments (`--decimals-csv-locale` and `--decimals-csv-format`) to statistics CSV ouput command

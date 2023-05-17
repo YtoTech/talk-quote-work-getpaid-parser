@@ -7,10 +7,10 @@
 ; Predicates.
 
 (defn numeric? [v]
-  (isinstance v (, int float)))
+  (isinstance v #(int float)))
 
 (defn string? [v]
-  (isinstance v (, str bytes)))
+  (isinstance v #(str bytes)))
 
 (defn none? [v]
   (= v None))
@@ -30,11 +30,11 @@
       (print (.format "Ignoring key {}" key)))) key))
   ;; Check all mandatories are here.
   (for [mandatory mandatories] ((fn [mandatory]
-    (if (not (in mandatory parsed-dict))
+    (when (not (in mandatory parsed-dict))
       (raise (ValueError (.format "Missing key {}" mandatory))))) mandatory))
   ;; Affect None to non-set optionals.
   (for [optional optionals] ((fn [optional]
-    (if (not (in optional parsed-dict))
+    (when (not (in optional parsed-dict))
       (assoc parsed-dict optional None))) optional))
   parsed-dict)
 
@@ -54,7 +54,7 @@
   (setv new-dict {})
   (for [key (.keys a-dict)]
     ((fn [key]
-      (if (pred (get a-dict key) key)
+      (when (pred (get a-dict key) key)
         (assoc new-dict key (get a-dict key))))
       key))
   new-dict)
@@ -62,7 +62,7 @@
 (defn pick-by [pred value]
   (setv new-value {})
   (for [key (.keys value)] ((fn [key]
-    (if (pred key)
+    (when (pred key)
       (assoc new-value key (get value key)))) key))
   new-value)
 
@@ -89,10 +89,9 @@
 (defn find-in-list [l pred]
   (setv element None)
   (for [item l] ((fn [item])
-    (if (pred item)
-      (do
-        (setv element item)
-        (break))) l))
+    (when (pred item)
+      (setv element item)
+      (break)) l))
   element)
 
 
