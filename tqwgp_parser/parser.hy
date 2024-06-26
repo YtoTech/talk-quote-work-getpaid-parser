@@ -7,7 +7,7 @@
 """
 (import os)
 (import .utils *)
-(import hyrule [reduce])
+(import functools [reduce])
 
 ;; Data parsing and normalization.
 
@@ -35,6 +35,7 @@
   (if (and
         (get-in price-formula ["enabled"] False)
         (string? price)
+        (!= price "")
         (= (get price 0) "="))
     (eval (cut price 1 None))
     price))
@@ -257,6 +258,7 @@
     ;; TODO Make the validation of the input dict recursive.
     (parse-dict-values definition
       ["title" "date" "author" "place" "sect" "client" "legal" "object" "prestations"]
+      ;; TODO Do a pass-through: do not restrict other values.
       ["context" "version" "definitions" "conditions" "documents" "display_project_reference" "vat_rate"])
     {
       "sect" (parse-sect (get definition "sect"))
@@ -311,6 +313,7 @@
     (filter-dict
       (parse-dict-values invoice
         ["number" "date" "lines"]
+        ;; TODO Do a pass-through: do not restrict other values.
         ["author" "sect" "client" "legal" "closing_note" "title" "vat_rate" "display_project_reference"])
       (fn [value key]
         (or (not (none? value)) (not (in key common-values)))))

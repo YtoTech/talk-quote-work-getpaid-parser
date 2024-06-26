@@ -272,7 +272,7 @@ def test_parse_simple_quote_rounding():
     assert quote["price"]["total_vat_incl"] == 44795.2
 
 
-def test_parse_simple_quote_rounding():
+def test_parse_simple_quote_with_formula():
     """
     Prestation prices can include formulas. (opt-in)
     """
@@ -282,12 +282,15 @@ def test_parse_simple_quote_rounding():
         "price_formula": {"enabled": True},
     }
     definition["prestations"][0]["price"] = "=1000*0.3"
+    definition["prestations"][1]["price"] = ""
     quote = parse_quote(definition)
     checkQuote(quote)
     assert len(quote["prestations"]) == 4
     assert quote["prestations"][0]["total"] == 300
     assert quote["prestations"][0]["price"] == 300
-    assert quote["price"]["total_vat_excl"] == 35300.0
+    assert quote["prestations"][1]["price"] == ""
+    assert quote["prestations"][1]["total"] is None
+    assert quote["price"]["total_vat_excl"] == 25300.0
 
 
 def test_parse_simple_quote_no_optional_tva():

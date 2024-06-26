@@ -2,7 +2,7 @@
 
 (import copy)
 (import toolz.itertoolz [drop])
-(require hyrule [assoc])
+;; (require hyrule [assoc])
 
 ; Predicates.
 
@@ -18,6 +18,37 @@
 (defn none-or-true? [value]
   (or (none? value) (bool value)))
 
+;; From hyrule
+;; https://github.com/hylang/hyrule/blob/0.6.0/hyrule/collections.hy
+(defn assoc [coll #* kvs]
+  "Associate key-value pairs by assigning to elements of `coll`. Thus, ::
+
+    (assoc coll  k1 v1  k2 v2  k3 v3)
+
+  is equivalent to ::
+
+    (setv (get coll k1) v1)
+    (setv (get coll k2) v2)
+    (setv (get coll k3) v3)
+
+  except ``coll`` is evaluated exactly once. Notice that this implies
+  the return value is ``None``, not ``coll`` or one of the newly
+  assigned elements."
+
+  (when (% (len kvs) 2)
+    (raise (ValueError "`assoc` takes an odd number of arguments")))
+  (for [[k v] (by2s kvs)]
+    (setv (get coll k) v)))
+
+(defn by2s [x]
+  #[[Returns the given iterable in pairs.
+    (list (by2s (range 6))) => [#(0 1) #(2 3) #(4 5)] #]]
+  (setv x (iter x))
+  (while True
+    (try
+      (yield #((next x) (next x)))
+      (except [StopIteration]
+        (break)))))
 
 ; Dicts.
 
