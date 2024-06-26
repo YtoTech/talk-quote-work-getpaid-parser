@@ -322,11 +322,13 @@ def csv(
                         # TODO Include date parsing in core parser.
                         # Allows to set format in definitions?
                         # "DD MMMM YYYY"
-                        "parsed_date": pendulum.from_format(
-                            invoice["date"], date_format, locale=date_locale
-                        )
-                        if date_format
-                        else None,
+                        "parsed_date": (
+                            pendulum.from_format(
+                                invoice["date"], date_format, locale=date_locale
+                            )
+                            if date_format
+                            else None
+                        ),
                     }
                 )
     if date_format:
@@ -343,15 +345,17 @@ def csv(
                 document["project_name"],
                 invoice["number"],
                 invoice["date"],
-                invoice_entry["parsed_date"].format(date_csv_format)
-                if invoice_entry["parsed_date"] and date_csv_format
-                else "-",
+                (
+                    invoice_entry["parsed_date"].format(date_csv_format)
+                    if invoice_entry["parsed_date"] and date_csv_format
+                    else "-"
+                ),
                 invoice["title"],
                 invoice["sect"]["name"],
                 invoice["client"]["name"],
                 # Options to round, change numeric character (,.), ...
                 format_decimal(invoice["price"]["total_vat_excl"]),
-                format_decimal(invoice["price"]["vat"]),
+                format_decimal(invoice["price"]["vat"] or 0),
                 format_decimal(invoice["price"]["total_vat_incl"]),
                 len(invoice["lines"]),
             ]

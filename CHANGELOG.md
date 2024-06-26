@@ -1,3 +1,11 @@
+# 0.6.4
+
+* Fix bug with CSV stat export when no VAT on an invoice
+
+# 0.6.3
+
+* Fix bug with `price_formula` and empty string prices
+
 # 0.6.2
 
 * Migrate to Hy `>= 0.26`

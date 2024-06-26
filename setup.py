@@ -1,14 +1,12 @@
-import sys
-import re
 import os
-import ast
 from setuptools import setup
+
 
 # Pass package modules files.
 # From https://stackoverflow.com/a/36693250/1956471
 def package_files(directory):
     paths = []
-    for (path, directories, filenames) in os.walk(directory):
+    for path, directories, filenames in os.walk(directory):
         for filename in filenames:
             paths.append(os.path.join("..", path, filename))
     return paths
@@ -20,7 +18,7 @@ with open("README.md") as f:
 
 setup(
     name="tqwgp-parser",
-    version="0.6.3",
+    version="0.6.4",
     url="https://github.com/YtoTech/talk-quote-work-getpaid-parser",
     license="AGPL-3.0",
     author="Yoan Tournade",
