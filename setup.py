@@ -20,7 +20,7 @@ with open("README.md") as f:
 
 setup(
     name="tqwgp-parser",
-    version="0.6.2",
+    version="0.6.3",
     url="https://github.com/YtoTech/talk-quote-work-getpaid-parser",
     license="AGPL-3.0",
     author="Yoan Tournade",
@@ -42,7 +42,7 @@ setup(
     install_requires=[
         "hy>=0.26.0",
         "toolz",
-        "hyrule",
+        # "hyrule",
         "pendulum",
         "toml",
         "pyyaml",
