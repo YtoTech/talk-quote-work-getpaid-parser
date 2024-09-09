@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-hy = ">=0.26.0"
+hy = ">=0.26.0,<1"
 toolz = "*"
 hyrule = "*"
 click = "*"

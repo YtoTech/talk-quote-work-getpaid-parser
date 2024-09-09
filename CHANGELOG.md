@@ -1,3 +1,7 @@
+# 0.6.5
+
+* Do not use Hy version ` 1.0aX`
+
 # 0.6.4
 
 * Fix bug with CSV stat export when no VAT on an invoice
