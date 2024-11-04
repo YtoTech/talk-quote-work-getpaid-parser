@@ -1,3 +1,7 @@
+# 0.6.6
+
+* Remove a debug print
+
 # 0.6.5
 
 * Do not use Hy version ` 1.0aX`

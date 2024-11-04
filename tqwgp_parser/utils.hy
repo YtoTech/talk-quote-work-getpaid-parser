@@ -134,7 +134,6 @@
     price))
 
 (defn rounded-number [number-value rounding-decimals]
-  (print number-value rounding-decimals)
   (if (and number-value rounding-decimals)
     (round number-value rounding-decimals)
     number-value))
