@@ -1,3 +1,7 @@
+# 0.6.7
+
+* Allows Hy 1.0.0
+
 # 0.6.6
 
 * Remove a debug print
