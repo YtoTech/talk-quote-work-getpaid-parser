@@ -1,0 +1,44 @@
+---
+author:
+  civility: M.
+  name: Benjamin Franklin
+  mobile: 07.73.35.51.00
+  role: membre
+sect:
+  name: BF Printer \& Co
+  email: bf@bf-printer.com
+legal:
+  siret: 999999999 00099
+  address:
+    line1: E Thompson Saint
+    zip: '19125'
+    city: Philadelphie
+client:
+  name: Tesla
+  legal:
+    siret: 524335262 00084
+    address:
+      line1: 103 Route de Mantes
+      zip: '78240'
+      city: Chambourcy
+  contact:
+    civility: M.
+    name: Elon Musk
+    role: CEO
+    sason: son
+invoices:
+  - number: '17001'
+    date: 5 janvier 2017
+    lines:
+      - title: Acompte devis 16-TESLA-01
+        price: 12000
+  - number: '17002'
+    date: 14 février 2017
+    vat_rate: 20
+    sect:
+      name: BF Printer \& Co
+      email: bf@bf-printer.com
+      logo: https://www.ytotech.com/static/images/ytotech_logo.png
+    lines:
+      - title: 2\textsuperscript{ère} partie du devis 16-TESLA-01
+        price: 18000

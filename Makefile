@@ -20,3 +20,6 @@ release:
 	pipenv run python setup.py bdist_wheel --universal
 	pipenv run twine check dist/*
 	pipenv run twine upload dist/*
+
+show:
+	pipenv run python -m tqwgp_parser show ./tests/samples/16-TESLA-01

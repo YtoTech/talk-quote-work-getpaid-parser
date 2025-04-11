@@ -22,13 +22,13 @@ import io
 import pendulum
 import babel.numbers
 from contextlib import redirect_stdout
-from .files.loaders import load_document_from_project, load_document_with_inheritance
+from .files.loaders import load_documents_from_project, load_document_with_inheritance
 from . import parse_quote, parse_invoices
 from .constants import DOCUMENT_TYPE_INVOICE, DOCUMENT_TYPE_QUOTE
 
 DEFAULT_DOCUMENT_TYPES_PATH = {
-    "invoices.yml": DOCUMENT_TYPE_INVOICE,
-    "quote.yml": DOCUMENT_TYPE_QUOTE,
+    "invoices*.yml": DOCUMENT_TYPE_INVOICE,
+    "quote*.yml": DOCUMENT_TYPE_QUOTE,
 }
 DEFAULT_DOCUMENT_TYPES_PARSER = {
     DOCUMENT_TYPE_INVOICE: parse_invoices,
@@ -61,45 +61,48 @@ def discover_and_loads_documents_from_directory(
 ):
     loaded_documents = []
     for default_document_path, document_type in DEFAULT_DOCUMENT_TYPES_PATH.items():
-        status, project_path, document_path, project_name = load_document_from_project(
-            project_specifier,
-            default_projects_dir=projects_base_path,
-            default_document_path=default_document_path,
-            throw_error=False,
+        status, project_path, documents_paths, project_name = (
+            load_documents_from_project(
+                project_specifier,
+                default_projects_dir=projects_base_path,
+                default_document_path=default_document_path,
+                throw_error=False,
+            )
         )
         if status != "ok":
             print(f"{status}: {project_path}")
             continue
-        # TODO Infer types (when full document path is specified).
-        print("Loading input file ({0})...".format(document_path))
-        # Use the file format parser.
-        file_format_parser = DEFAULT_FILE_FORMAT_PARSERS[file_format]
-        input_document = load_document_with_inheritance(
-            document_path,
-            open_fn=file_format_parser["open_fn"],
-            parser_fn=file_format_parser["parser_fn"],
-        )
-        loaded_document = {
-            "project_path": project_path,
-            "document_path": document_path,
-            "project_name": project_name,
-            "document_type": document_type,
-            "file_format": file_format,
-            # verbose
-            "document_content": input_document,
-        }
-        if enable_parsing:
-            document_type_parser = DEFAULT_DOCUMENT_TYPES_PARSER[document_type]
+        for document_path in documents_paths:
+            # TODO Infer types (when full document path is specified).
+            print("Loading input file ({0})...".format(document_path))
+            # Use the file format parser.
+            file_format_parser = DEFAULT_FILE_FORMAT_PARSERS[file_format]
+            input_document = load_document_with_inheritance(
+                document_path,
+                open_fn=file_format_parser["open_fn"],
+                parser_fn=file_format_parser["parser_fn"],
+            )
             loaded_document = {
-                **loaded_document,
-                "parsed_document": document_type_parser(input_document),
-            }
-        if verbose or not enable_parsing:
-            loaded_document = {
-                **loaded_document,
+                "project_path": project_path,
+                "document_path": document_path,
+                "project_name": project_name,
+                "document_type": document_type,
+                "file_format": file_format,
+                # verbose
                 "document_content": input_document,
             }
-        loaded_documents.append(loaded_document)
+            if enable_parsing:
+                document_type_parser = DEFAULT_DOCUMENT_TYPES_PARSER[document_type]
+                loaded_document = {
+                    **loaded_document,
+                    "parsed_document": document_type_parser(input_document),
+                }
+            if verbose or not enable_parsing:
+                loaded_document = {
+                    **loaded_document,
+                    "document_content": input_document,
+                }
+            loaded_documents.append(loaded_document)
     return loaded_documents
 
 
@@ -186,6 +189,16 @@ def cli():
     help="Enable recursive documents discovery (from the project specifier).",
     default=False,
 )
+@click.option(
+    "--decimals-locale",
+    default="en",
+    help="The decimals locale to use (using Babel).",
+)
+@click.option(
+    "--decimals-format",
+    default="#.##",
+    help="The decimals format to use (using Babel pattern syntax).",
+)
 def show(
     project_specifier,
     file_format="yaml",
@@ -194,11 +207,13 @@ def show(
     enable_parsing=True,
     recursive=False,
     debug=False,
+    decimals_locale=None,
+    decimals_format=None,
 ):
     """Load and show parsed documents for the project specifier"""
     # TODO Arg to open only certain types.
     # TODO Arg to specify default_document_path?
-    final_ouput = discover_and_loads_documents(
+    loaded_documents = discover_and_loads_documents(
         project_specifier,
         file_format=file_format,
         projects_base_path=projects_base_path,
@@ -207,7 +222,40 @@ def show(
         recursive=recursive,
         debug=debug,
     )
-    pprint.pprint(final_ouput)
+
+    def format_decimal(number):
+        return babel.numbers.format_decimal(
+            number,
+            locale=decimals_locale,
+            format=decimals_format,
+        )
+
+    if verbose:
+        pprint.pprint(loaded_documents)
+        return
+    for document in loaded_documents["documents"]:
+        print(
+            f"""{document["document_path"]}
+  Document type {document["document_type"]}, project {document["project_name"]}:"""
+        )
+        if document["document_type"] == "invoice":
+            for invoice in document["parsed_document"]["invoices"]:
+                print(
+                    f"""   - Invoice n°{invoice["number"]} ({invoice["date"]})
+     Prestataire: {invoice["sect"]["name"]} - Client: {invoice["client"]["name"]}
+     Total HT: {format_decimal(invoice["price"]["total_vat_excl"])}
+     TVA: {format_decimal(invoice["price"]["vat"] or 0)}
+     Total TTC: {format_decimal(invoice["price"]["total_vat_incl"])}"""
+                )
+        elif document["document_type"] == "quote":
+            quote = document["parsed_document"]
+            print(
+                f"""   - Quote \"{quote["title"]}\" ({quote["version"]} {quote["date"]})
+     Prestataire: {quote["sect"]["name"]} - Client: {quote["client"]["name"]}
+     Total HT: {format_decimal(quote["price"]["total_vat_excl"])}
+     TVA: {format_decimal(quote["price"]["vat"] or 0)}
+     Total TTC: {format_decimal(quote["price"]["total_vat_incl"])}"""
+            )
 
 
 @cli.command()

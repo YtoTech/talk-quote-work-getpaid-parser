@@ -1,3 +1,7 @@
+# 0.7.0
+
+* Loads documents with glob pattern (default `invoices*.yml` and `quote*.yml`) for CSV stats
+
 # 0.6.7
 
 * Allows Hy 1.0.0

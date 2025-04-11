@@ -8,9 +8,10 @@
 """
 import os
 import pathlib
+import glob
 
 
-def load_document_from_project(
+def load_documents_from_project(
     project_specifier,
     default_projects_dir=None,
     default_document_path=None,
@@ -41,7 +42,8 @@ def load_document_from_project(
         # We should look for the default document path in
         # the project directory.
         document_path = os.path.join(project_path, default_document_path)
-    if not os.path.isfile(document_path):
+    documents_paths = glob.glob(document_path)
+    if not documents_paths:
         error_str = "No document found for project path and specifier {}:{} (default path: {})".format(
             project_path,
             project_specifier,
@@ -51,7 +53,6 @@ def load_document_from_project(
             raise ValueError(error_str)
         return "value_error", error_str, None, None
     project_path = os.path.realpath(project_path)
-    document_path = os.path.realpath(document_path)
     # Extract project name.
     extracted_project_name = project_path.split("/")[
         -2 if project_path[-1] == "/" else -1
@@ -63,9 +64,12 @@ def load_document_from_project(
         if throw_error:
             raise ValueError(error_str)
         return "value_error", error_str, None, None
+    returned_documents_paths = [
+        os.path.realpath(document_path) for document_path in documents_paths
+    ]
     if throw_error:
-        return project_path, document_path, extracted_project_name
-    return "ok", project_path, document_path, extracted_project_name
+        return project_path, returned_documents_paths, extracted_project_name
+    return "ok", project_path, returned_documents_paths, extracted_project_name
 
 
 def load_document_with_inheritance(
