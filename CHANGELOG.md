@@ -1,3 +1,7 @@
+# 0.7.1
+
+* Change the default pattern for invoice to `invoice*.yml`
+
 # 0.7.0
 
 * Loads documents with glob pattern (default `invoices*.yml` and `quote*.yml`) for CSV stats

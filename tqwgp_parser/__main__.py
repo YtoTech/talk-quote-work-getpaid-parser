@@ -27,7 +27,7 @@ from . import parse_quote, parse_invoices
 from .constants import DOCUMENT_TYPE_INVOICE, DOCUMENT_TYPE_QUOTE
 
 DEFAULT_DOCUMENT_TYPES_PATH = {
-    "invoices*.yml": DOCUMENT_TYPE_INVOICE,
+    "invoice*.yml": DOCUMENT_TYPE_INVOICE,
     "quote*.yml": DOCUMENT_TYPE_QUOTE,
 }
 DEFAULT_DOCUMENT_TYPES_PARSER = {
