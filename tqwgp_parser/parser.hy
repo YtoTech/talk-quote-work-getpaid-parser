@@ -82,33 +82,55 @@
       "optional" (get-default section "optional" False)
     }]))
 
+(defn compute-price-with-discount
+        [prestations
+          [count-optional False]
+          [rounding-decimals None]
+          [price-formula {}]]
+  """
+  Parse price of a flattened list of prestations
+  (actually any list with object containing a price property),
+  with quantity and discount support.
+  Returns a tuple (price, discount). price is positive or zero, discount negative or zero.
+  """
+  ;; Must accept (but ignore for total) None and string values.
+  ;; Set to None if no price defined at all.
+  (tuple (map
+    (fn [x] (rounded-number x rounding-decimals))
+    (reduce
+      (fn [total-with-discount prestation]
+        (setv price (apply-any-price-formula (get prestation "price") price-formula))
+        (setv add-price (and (numeric? price) (or count-optional (not (get-default prestation "optional" False)))))
+        (setv prestation-total (when (numeric? price) (* price (get-default prestation "quantity" 1))))
+        (cond
+          (and add-price (>= price 0))
+            #(
+              (+ (get total-with-discount 0) prestation-total)
+              (get total-with-discount 1)
+            )
+          add-price
+            #(
+              (get total-with-discount 0)
+              (+ (get total-with-discount 1) prestation-total)
+            )
+          True
+            total-with-discount))
+      prestations
+      #(0 0))
+    )))
+
 (defn compute-price
         [prestations
-          [count-optional False] [rounding-decimals None]
+          [count-optional False]
+          [rounding-decimals None]
           [price-formula {}]]
   """
   Parse price of a flattened list of prestations
   (actually any list with object containing a price property),
   with quantity support.
   """
-  ;; Must accept (but ignore for total) None and string values.
-  ;; Set to None if no price defined at all.
-  (rounded-number
-    (reduce
-      (fn [total prestation]
-        (setv price (apply-any-price-formula (get prestation "price") price-formula))
-        (setv add-price (and (numeric? price) (or count-optional (not (get-default prestation "optional" False)))))
-        (setv prestation-total (when (numeric? price) (* price (get-default prestation "quantity" 1))))
-        (cond
-          (and add-price (numeric? total))
-            (+ total prestation-total)
-          add-price
-            prestation-total
-          True
-            total))
-      prestations
-      None)
-    rounding-decimals))
+  (+ #* (compute-price-with-discount prestations count-optional rounding-decimals price-formula)))
+
 
 (defn compute-vat [price vat-rate [rounding-decimals None]]
   """
@@ -128,10 +150,12 @@
   from a list of objects containing a price (numerical) property.
   """
   ;; TODO Handle price object in element list, taking total_vat_excl for the summation?
-  (setv total-vat-excl (compute-price prestations
+  (setv total-vat-excl-with-discount (compute-price-with-discount prestations
     :count-optional count-optional
     :rounding-decimals rounding-decimals
     :price-formula price-formula))
+  (setv total-vat-excl (+ #* total-vat-excl-with-discount))
+  (setv total-discount (get total-vat-excl-with-discount 1))
   (if (numeric? vat-rate)
     (do
       (setv vat (if (none? total-vat-excl) None (compute-vat total-vat-excl vat-rate
@@ -142,12 +166,14 @@
           None
           (rounded-number (+ total-vat-excl vat) rounding-decimals))
         "total_vat_excl" total-vat-excl
+        "discount" total-discount
       }
     )
     {
       "vat" None
       "total_vat_incl" total-vat-excl
       "total_vat_excl" total-vat-excl
+      "discount" total-discount
     }))
 
 (defn parse-batch [batch]
@@ -237,23 +263,6 @@
     "enabled" (get-in definition ["options" "price_formula" "enabled"] False)
   }})
 
-(defn parse-discount [definition]
-  ;; Use two properties for discount: discount_amount and discount_rate?
-  ;; -> (Prefered) Or one property can be a numerical (currency) amount
-  ;; or a percentage (passed as a string like "5%")
-  (setv discount-def (get-default definition "discount" None))
-  (cond
-    (numeric? discount-def)
-    {"mode" "amount"
-      "value" discount-def}
-
-    (and (string? discount-def) (.isnumeric (.strip discount-def "%")))
-    {"mode" "percent"
-    "value" (int (.strip discount-def "%"))}
-
-    True
-    None))
-
 (defn parse-quote [definition #** kwargs]
   """
   Parse and normalize a quote definition.
@@ -266,7 +275,6 @@
     (parse-parser-options definition)
   ]))
   (setv vat-rate (get-default definition "vat_rate" None))
-  (setv discount-spec (parse-discount definition))
   (setv #(all-prestations sections)
     (parse-all-prestations (get definition "prestations") vat-rate options))
   (setv #(all-optional-prestations optional-sections)
@@ -278,7 +286,7 @@
       ["title" "date" "author" "place" "sect" "client" "legal" "object" "prestations"]
       ;; TODO Do a pass-through: do not restrict other values.
       ["context" "version" "definitions" "conditions" "documents" "display_project_reference"
-      "vat_rate" "discount"])
+      "vat_rate"])
     {
       "sect" (parse-sect (get definition "sect"))
       "vat_rate" vat_rate
@@ -286,7 +294,6 @@
         :vat-rate vat-rate
         :rounding-decimals (get options "rounding-decimals")
         :price-formula (get options "price_formula"))
-      "discount" discount-spec
       ;; Derive sections from all-prestations (and sections too).
       "batches" (recompose-batches all-prestations)
       "all_prestations" all-prestations
