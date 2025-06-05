@@ -82,33 +82,46 @@
       "optional" (get-default section "optional" False)
     }]))
 
-(defn compute-price
+(defn compute-price-with-discount
         [prestations
-          [count-optional False] [rounding-decimals None]
+          [count-optional False]
+          [rounding-decimals None]
           [price-formula {}]]
+  """
+  Parse price of a flattened list of prestations
+  (actually any list with object containing a price property),
+  with quantity and discount support.
+  Returns a tuple (price, discount). price is positive or zero, discount negative or zero.
+  """
+  ;; Must accept (but ignore for total) None and string values.
+  ;; Set to None if no price defined at all.
+  (tuple (map
+    (fn [x] (rounded-number x rounding-decimals))
+    (reduce
+      (fn [total-with-discount prestation]
+        (setv price (apply-any-price-formula (get prestation "price") price-formula))
+        (setv add-price (and (numeric? price) (or count-optional (not (get-default prestation "optional" False)))))
+        (setv prestation-total (when (numeric? price) (* price (get-default prestation "quantity" 1))))
+        (if add-price
+          #(
+            (+ (or (get total-with-discount 0) 0) prestation-total)
+            (if (< prestation-total 0)
+              (+ (or (get total-with-discount 1) 0) prestation-total)
+              (get total-with-discount 1))
+          )
+          total-with-discount))
+      prestations
+      #(None None))
+    )))
+
+(defn compute-price [#* args #** kwargs]
   """
   Parse price of a flattened list of prestations
   (actually any list with object containing a price property),
   with quantity support.
   """
-  ;; Must accept (but ignore for total) None and string values.
-  ;; Set to None if no price defined at all.
-  (rounded-number
-    (reduce
-      (fn [total prestation]
-        (setv price (apply-any-price-formula (get prestation "price") price-formula))
-        (setv add-price (and (numeric? price) (or count-optional (not (get-default prestation "optional" False)))))
-        (setv prestation-total (when (numeric? price) (* price (get-default prestation "quantity" 1))))
-        (cond
-          (and add-price (numeric? total))
-            (+ total prestation-total)
-          add-price
-            prestation-total
-          True
-            total))
-      prestations
-      None)
-    rounding-decimals))
+  (get (compute-price-with-discount #* args #** kwargs) 0))
+
 
 (defn compute-vat [price vat-rate [rounding-decimals None]]
   """
@@ -128,10 +141,12 @@
   from a list of objects containing a price (numerical) property.
   """
   ;; TODO Handle price object in element list, taking total_vat_excl for the summation?
-  (setv total-vat-excl (compute-price prestations
+  (setv total-vat-excl-with-discount (compute-price-with-discount prestations
     :count-optional count-optional
     :rounding-decimals rounding-decimals
     :price-formula price-formula))
+  (setv total-vat-excl (get total-vat-excl-with-discount 0))
+  (setv total-discount (get total-vat-excl-with-discount 1))
   (if (numeric? vat-rate)
     (do
       (setv vat (if (none? total-vat-excl) None (compute-vat total-vat-excl vat-rate
@@ -142,12 +157,14 @@
           None
           (rounded-number (+ total-vat-excl vat) rounding-decimals))
         "total_vat_excl" total-vat-excl
+        "discount" total-discount
       }
     )
     {
       "vat" None
       "total_vat_incl" total-vat-excl
       "total_vat_excl" total-vat-excl
+      "discount" total-discount
     }))
 
 (defn parse-batch [batch]
@@ -259,7 +276,8 @@
     (parse-dict-values definition
       ["title" "date" "author" "place" "sect" "client" "legal" "object" "prestations"]
       ;; TODO Do a pass-through: do not restrict other values.
-      ["context" "version" "definitions" "conditions" "documents" "display_project_reference" "vat_rate"])
+      ["context" "version" "definitions" "conditions" "documents" "display_project_reference"
+      "vat_rate"])
     {
       "sect" (parse-sect (get definition "sect"))
       "vat_rate" vat_rate

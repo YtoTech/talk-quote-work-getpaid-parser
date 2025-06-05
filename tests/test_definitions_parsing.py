@@ -10,6 +10,7 @@ import yaml
 import os
 import copy
 import pprint
+import pytest
 from tqwgp_parser import parse_quote, parse_invoices
 
 SAMPLE_DIR = os.getcwd() + "/tests/samples/"
@@ -400,6 +401,46 @@ def test_parse_nested_section_quote_with_optional():
     assert quote["sections"][1]["optional_price"]["total_vat_excl"] == 4400
     assert quote["sections"][1]["optional"] == False
 
+
+def test_parse_simple_quote_discount_amount():
+    """
+    A prestation price can define a discount (amount).
+    """
+    definition = copy.deepcopy(TESLA_16_01_QUOTE)
+    definition["vat_rate"] = 20
+    definition["prestations"].append({
+        "title": "VOUCHER",
+        "price": -2000
+    })
+    quote = parse_quote(definition)
+    checkQuote(quote)
+    assert len(quote["prestations"]) == 5
+    assert quote["price"]["discount"] == -2000
+    assert quote["price"]["total_vat_excl"] == 38000
+    # TODO Update
+    assert quote["price"]["vat"] == 7600
+    assert quote["price"]["total_vat_incl"] == 45600
+
+@pytest.mark.skip(reason="TODO")
+def test_parse_simple_quote_discount_percent():
+    """
+    A prestation price can define a discount (percent).
+    TODO
+    """
+    definition = copy.deepcopy(TESLA_16_01_QUOTE)
+    definition["vat_rate"] = 20
+    definition["prestations"].append({
+        "title": "VOUCHER",
+        "price": "10%"
+    })
+    quote = parse_quote(definition)
+    checkQuote(quote)
+    assert len(quote["prestations"]) == 4
+    assert quote["price"]["discount"] == 4000
+    assert quote["price"]["total_vat_excl"] == 36000
+    # TODO Update
+    assert quote["price"]["vat"] == 7200
+    assert quote["price"]["total_vat_incl"] == 43200
 
 # ------------------------------------------------------------------------------
 # Invoices.

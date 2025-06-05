@@ -1,3 +1,8 @@
+# 0.8.0
+
+* Manage discounts on quotes, that can be a numerical (currency) amount
+or a percentage (passed as a string like "5%")
+
 # 0.7.1
 
 * Change the default pattern for invoice to `invoice*.yml`
