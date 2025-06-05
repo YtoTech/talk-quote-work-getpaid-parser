@@ -102,34 +102,25 @@
         (setv price (apply-any-price-formula (get prestation "price") price-formula))
         (setv add-price (and (numeric? price) (or count-optional (not (get-default prestation "optional" False)))))
         (setv prestation-total (when (numeric? price) (* price (get-default prestation "quantity" 1))))
-        (cond
-          (and add-price (>= price 0))
-            #(
-              (+ (get total-with-discount 0) prestation-total)
-              (get total-with-discount 1)
-            )
-          add-price
-            #(
-              (get total-with-discount 0)
-              (+ (get total-with-discount 1) prestation-total)
-            )
-          True
-            total-with-discount))
+        (if add-price
+          #(
+            (+ (or (get total-with-discount 0) 0) prestation-total)
+            (if (< prestation-total 0)
+              (+ (or (get total-with-discount 1) 0) prestation-total)
+              (get total-with-discount 1))
+          )
+          total-with-discount))
       prestations
-      #(0 0))
+      #(None None))
     )))
 
-(defn compute-price
-        [prestations
-          [count-optional False]
-          [rounding-decimals None]
-          [price-formula {}]]
+(defn compute-price [#* args #** kwargs]
   """
   Parse price of a flattened list of prestations
   (actually any list with object containing a price property),
   with quantity support.
   """
-  (+ #* (compute-price-with-discount prestations count-optional rounding-decimals price-formula)))
+  (get (compute-price-with-discount #* args #** kwargs) 0))
 
 
 (defn compute-vat [price vat-rate [rounding-decimals None]]
@@ -154,7 +145,7 @@
     :count-optional count-optional
     :rounding-decimals rounding-decimals
     :price-formula price-formula))
-  (setv total-vat-excl (+ #* total-vat-excl-with-discount))
+  (setv total-vat-excl (get total-vat-excl-with-discount 0))
   (setv total-discount (get total-vat-excl-with-discount 1))
   (if (numeric? vat-rate)
     (do

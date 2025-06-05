@@ -10,6 +10,7 @@ import yaml
 import os
 import copy
 import pprint
+import pytest
 from tqwgp_parser import parse_quote, parse_invoices
 
 SAMPLE_DIR = os.getcwd() + "/tests/samples/"
@@ -420,12 +421,12 @@ def test_parse_simple_quote_discount_amount():
     assert quote["price"]["vat"] == 7600
     assert quote["price"]["total_vat_incl"] == 45600
 
+@pytest.mark.skip(reason="TODO")
 def test_parse_simple_quote_discount_percent():
     """
     A prestation price can define a discount (percent).
     TODO
     """
-    return
     definition = copy.deepcopy(TESLA_16_01_QUOTE)
     definition["vat_rate"] = 20
     definition["prestations"].append({
