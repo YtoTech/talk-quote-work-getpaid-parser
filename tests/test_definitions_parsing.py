@@ -401,6 +401,40 @@ def test_parse_nested_section_quote_with_optional():
     assert quote["sections"][1]["optional"] == False
 
 
+def test_parse_simple_quote_discount_amount():
+    """
+    A prestation price can define a discount (amount).
+    """
+    definition = copy.deepcopy(TESLA_16_01_QUOTE)
+    definition["vat_rate"] = 20
+    definition["discount"] = 500
+    quote = parse_quote(definition)
+    checkQuote(quote)
+    assert len(quote["prestations"]) == 4
+    assert quote["discount"]["mode"] == "amount"
+    assert quote["discount"]["value"] == 500
+    assert quote["price"]["total_vat_excl"] == 39500
+    # TODO Update
+    assert quote["price"]["vat"] == 0
+    assert quote["price"]["total_vat_incl"] == 48000
+
+def test_parse_simple_quote_discount_percent():
+    """
+    A prestation price can define a discount (percent).
+    """
+    definition = copy.deepcopy(TESLA_16_01_QUOTE)
+    definition["vat_rate"] = 20
+    definition["discount"] = "5%"
+    quote = parse_quote(definition)
+    checkQuote(quote)
+    assert len(quote["prestations"]) == 4
+    assert quote["discount"]["mode"] == "percent"
+    assert quote["discount"]["value"] == 5
+    assert quote["price"]["total_vat_excl"] == 38000
+    # TODO Update
+    assert quote["price"]["vat"] == 0
+    assert quote["price"]["total_vat_incl"] == 48000
+
 # ------------------------------------------------------------------------------
 # Invoices.
 # ------------------------------------------------------------------------------

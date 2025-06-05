@@ -237,6 +237,23 @@
     "enabled" (get-in definition ["options" "price_formula" "enabled"] False)
   }})
 
+(defn parse-discount [definition]
+  ;; Use two properties for discount: discount_amount and discount_rate?
+  ;; -> (Prefered) Or one property can be a numerical (currency) amount
+  ;; or a percentage (passed as a string like "5%")
+  (setv discount-def (get-default definition "discount" None))
+  (cond
+    (numeric? discount-def)
+    {"mode" "amount"
+      "value" discount-def}
+
+    (and (string? discount-def) (.isnumeric (.strip discount-def "%")))
+    {"mode" "percent"
+    "value" (int (.strip discount-def "%"))}
+
+    True
+    None))
+
 (defn parse-quote [definition #** kwargs]
   """
   Parse and normalize a quote definition.
@@ -249,6 +266,7 @@
     (parse-parser-options definition)
   ]))
   (setv vat-rate (get-default definition "vat_rate" None))
+  (setv discount-spec (parse-discount definition))
   (setv #(all-prestations sections)
     (parse-all-prestations (get definition "prestations") vat-rate options))
   (setv #(all-optional-prestations optional-sections)
@@ -259,7 +277,8 @@
     (parse-dict-values definition
       ["title" "date" "author" "place" "sect" "client" "legal" "object" "prestations"]
       ;; TODO Do a pass-through: do not restrict other values.
-      ["context" "version" "definitions" "conditions" "documents" "display_project_reference" "vat_rate"])
+      ["context" "version" "definitions" "conditions" "documents" "display_project_reference"
+      "vat_rate" "discount"])
     {
       "sect" (parse-sect (get definition "sect"))
       "vat_rate" vat_rate
@@ -267,6 +286,7 @@
         :vat-rate vat-rate
         :rounding-decimals (get options "rounding-decimals")
         :price-formula (get options "price_formula"))
+      "discount" discount-spec
       ;; Derive sections from all-prestations (and sections too).
       "batches" (recompose-batches all-prestations)
       "all_prestations" all-prestations
