@@ -12,6 +12,9 @@
 (defn string? [v]
   (isinstance v #(str bytes)))
 
+(defn dict? [v]
+  (isinstance v dict))
+
 (defn none? [v]
   (= v None))
 
