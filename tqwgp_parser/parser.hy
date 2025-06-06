@@ -82,6 +82,18 @@
       "optional" (get-default section "optional" False)
     }]))
 
+(defn compute-discount [amount discount-spec]
+  (cond
+    (or (none? discount-spec) (none? amount))
+    None
+    
+    (= "percent" (get discount-spec "mode"))
+    (simplest-numerical-format
+      (* amount (/ (get discount-spec "value") 100)))
+    
+    True
+    (get discount-spec "value")))
+
 (defn compute-price
         [prestations
           [count-optional False] [rounding-decimals None]
@@ -121,17 +133,25 @@
 
 (defn compute-price-vat
       [prestations
-        [count-optional False] [vat-rate None]
-        [rounding-decimals None] [price-formula {}]]
+        [count-optional False]
+        [vat-rate None]
+        [rounding-decimals None]
+        [price-formula {}]
+        [discount-spec None]]
   """
   Compute price, as an object including VAT component, total with VAT excluded, total with VAT included ;
   from a list of objects containing a price (numerical) property.
   """
   ;; TODO Handle price object in element list, taking total_vat_excl for the summation?
-  (setv total-vat-excl (compute-price prestations
+  (setv gross-vat-excl (compute-price prestations
     :count-optional count-optional
     :rounding-decimals rounding-decimals
     :price-formula price-formula))
+  (setv discount-vat-excl (compute-discount gross-vat-excl discount-spec))
+  (setv total-vat-excl
+    (if (none? discount-vat-excl)
+      gross-vat-excl
+      (- gross-vat-excl discount-vat-excl)))
   (if (numeric? vat-rate)
     (do
       (setv vat (if (none? total-vat-excl) None (compute-vat total-vat-excl vat-rate
@@ -142,12 +162,16 @@
           None
           (rounded-number (+ total-vat-excl vat) rounding-decimals))
         "total_vat_excl" total-vat-excl
+        "gross_vat_excl" gross-vat-excl
+        "discount_vat_excl" discount-vat-excl
       }
     )
     {
       "vat" None
       "total_vat_incl" total-vat-excl
       "total_vat_excl" total-vat-excl
+      "gross_vat_excl" gross-vat-excl
+      "discount_vat_excl" discount-vat-excl
     }))
 
 (defn parse-batch [batch]
@@ -242,17 +266,30 @@
   ;; -> (Prefered) Or one property can be a numerical (currency) amount
   ;; or a percentage (passed as a string like "5%")
   (setv discount-def (get-default definition "discount" None))
-  (cond
-    (numeric? discount-def)
-    {"mode" "amount"
-      "value" discount-def}
+  (setv discount-spec
+    (cond
+      (dict? discount-def)
+      discount-def
 
-    (and (string? discount-def) (.isnumeric (.strip discount-def "%")))
-    {"mode" "percent"
-    "value" (int (.strip discount-def "%"))}
+      (numeric? discount-def)
+      {"mode" "amount"
+        "value" discount-def}
 
-    True
-    None))
+      (and (string? discount-def) (.isnumeric (.strip discount-def "%")))
+      {"mode" "percent"
+      "value" (int (.strip discount-def "%"))}
+
+      True
+      None))
+  (if
+    (none? discount-spec)
+    None
+    (merge-dicts [
+      discount-spec
+      {
+        "title" (get-default discount-spec "title" None)
+      }
+    ])))
 
 (defn parse-quote [definition #** kwargs]
   """
@@ -285,7 +322,8 @@
       "price" (compute-price-vat all-prestations
         :vat-rate vat-rate
         :rounding-decimals (get options "rounding-decimals")
-        :price-formula (get options "price_formula"))
+        :price-formula (get options "price_formula")
+        :discount-spec discount-spec)
       "discount" discount-spec
       ;; Derive sections from all-prestations (and sections too).
       "batches" (recompose-batches all-prestations)

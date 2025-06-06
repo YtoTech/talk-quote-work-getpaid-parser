@@ -413,10 +413,12 @@ def test_parse_simple_quote_discount_amount():
     assert len(quote["prestations"]) == 4
     assert quote["discount"]["mode"] == "amount"
     assert quote["discount"]["value"] == 500
+    assert quote["discount"]["title"] == None
+    assert quote["price"]["gross_vat_excl"] == 40000
+    assert quote["price"]["discount_vat_excl"] == 500
     assert quote["price"]["total_vat_excl"] == 39500
-    # TODO Update
-    assert quote["price"]["vat"] == 0
-    assert quote["price"]["total_vat_incl"] == 48000
+    assert quote["price"]["vat"] == 7900
+    assert quote["price"]["total_vat_incl"] == 47400
 
 def test_parse_simple_quote_discount_percent():
     """
@@ -430,10 +432,35 @@ def test_parse_simple_quote_discount_percent():
     assert len(quote["prestations"]) == 4
     assert quote["discount"]["mode"] == "percent"
     assert quote["discount"]["value"] == 5
+    assert quote["discount"]["title"] == None
+    assert quote["price"]["gross_vat_excl"] == 40000
     assert quote["price"]["total_vat_excl"] == 38000
-    # TODO Update
-    assert quote["price"]["vat"] == 0
-    assert quote["price"]["total_vat_incl"] == 48000
+    assert quote["price"]["discount_vat_excl"] == 2000
+    assert quote["price"]["vat"] == 7600
+    assert quote["price"]["total_vat_incl"] == 45600
+
+def test_parse_simple_quote_discount_spec():
+    """
+    A prestation price can define a discount (spec).
+    """
+    definition = copy.deepcopy(TESLA_16_01_QUOTE)
+    definition["vat_rate"] = 20
+    definition["discount"] = {
+        "mode": "percent",
+        "value": 5,
+        "title": "Remise commerciale"
+    }
+    quote = parse_quote(definition)
+    checkQuote(quote)
+    assert len(quote["prestations"]) == 4
+    assert quote["discount"]["mode"] == "percent"
+    assert quote["discount"]["value"] == 5
+    assert quote["discount"]["title"] == "Remise commerciale"
+    assert quote["price"]["gross_vat_excl"] == 40000
+    assert quote["price"]["total_vat_excl"] == 38000
+    assert quote["price"]["discount_vat_excl"] == 2000
+    assert quote["price"]["vat"] == 7600
+    assert quote["price"]["total_vat_incl"] == 45600
 
 # ------------------------------------------------------------------------------
 # Invoices.

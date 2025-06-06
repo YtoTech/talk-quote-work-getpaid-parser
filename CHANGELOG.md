@@ -1,7 +1,10 @@
 # 0.8.0
 
-* Manage discounts on quotes, that can be a numerical (currency) amount
-or a percentage (passed as a string like "5%")
+* Manage discounts on quotes, specified with the property `discount`, whhich can be a numerical (currency) amount or a percentage (passed as a string like `"5%"`) or a complete discount spec dict (eg. `{
+        "mode": "percent",
+        "value": 15,
+        "title": "Discount"
+    }`, mode can be `percent` or `amount`)
 
 # 0.7.1
 
