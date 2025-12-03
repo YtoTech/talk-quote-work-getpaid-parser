@@ -173,7 +173,6 @@ def cli():
     type=click.Choice(["yaml", "json", "toml"], case_sensitive=False),
     default="yaml",
 )
-@click.option("-v", "--verbose", default=False, help="Verbose mode")
 @click.option(
     "--projects-base-path",
     default="",
@@ -270,7 +269,6 @@ def show(
     type=click.Choice(["invoices"], case_sensitive=False),
     default="invoices",
 )
-@click.option("-v", "--verbose", default=False, help="Verbose mode")
 @click.option(
     "--projects-base-path",
     default="",
@@ -418,7 +416,6 @@ def csv(
     type=click.Choice(["yaml", "json", "toml"], case_sensitive=False),
     default="yaml",
 )
-@click.option("-v", "--verbose", default=False, help="Verbose mode")
 @click.option(
     "--projects-base-path",
     default="",
