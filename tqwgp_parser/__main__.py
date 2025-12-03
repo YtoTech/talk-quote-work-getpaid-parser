@@ -374,6 +374,7 @@ def csv(
                         else None
                     )
                 except ValueError as e:
+                    # TODO Just log and continue?
                     raise ValueError(
                         f"Unable to parsed string {invoice['date']} to date"
                     ) from e
