@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-    tqwgp-parser
-    ~~~~~~~~~~~~~~~~~~~~~
-    TQWGP parser package.
+tqwgp-parser
+~~~~~~~~~~~~~~~~~~~~~
+TQWGP parser package.
 
-    :copyright: (c) 2021 Yoan Tournade.
+:copyright: (c) 2021 Yoan Tournade.
 """
 import hy
 

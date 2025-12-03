@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-    tqwgp-parser.cli
-    ~~~~~~~~~~~~~~~~~~~~~
-    CLI for the TQWGP parser, allowing to parse JSON, Yaml and Toml.
+tqwgp-parser.cli
+~~~~~~~~~~~~~~~~~~~~~
+CLI for the TQWGP parser, allowing to parse JSON, Yaml and Toml.
 
-    This is a Work-in-Progress.
+This is a Work-in-Progress.
 
-    :copyright: (c) 2021 Yoan Tournade.
+:copyright: (c) 2021 Yoan Tournade.
 """
 import os
 import sys
@@ -361,20 +361,27 @@ def csv(
     for document in loaded_documents["documents"]:
         if document["document_type"] == "invoice":
             for invoice in document["parsed_document"]["invoices"]:
+                parsed_data = None
+                try:
+                    # TODO Include date parsing in core parser.
+                    # Allows to set format in definitions?
+                    # "DD MMMM YYYY"
+                    parsed_data = (
+                        pendulum.from_format(
+                            invoice["date"], date_format, locale=date_locale
+                        )
+                        if date_format
+                        else None
+                    )
+                except ValueError as e:
+                    raise ValueError(
+                        f"Unable to parsed string {invoice['date']} to date"
+                    ) from e
                 all_invoices.append(
                     {
                         "invoice": invoice,
                         "document": document,
-                        # TODO Include date parsing in core parser.
-                        # Allows to set format in definitions?
-                        # "DD MMMM YYYY"
-                        "parsed_date": (
-                            pendulum.from_format(
-                                invoice["date"], date_format, locale=date_locale
-                            )
-                            if date_format
-                            else None
-                        ),
+                        "parsed_date": parsed_data,
                     }
                 )
     if date_format:

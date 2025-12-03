@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    tests.test_definitions_parsing
-    ~~~~~~~~~~~~~~~~~~~~~
-    Ensures definitions are well-parsed and that the format is normalized.
-    :copyright: (c) 2017-2021 Yoan Tournade.
+tests.test_definitions_parsing
+~~~~~~~~~~~~~~~~~~~~~
+Ensures definitions are well-parsed and that the format is normalized.
+:copyright: (c) 2017-2021 Yoan Tournade.
 """
 import codecs
 import yaml
@@ -420,6 +420,7 @@ def test_parse_simple_quote_discount_amount():
     assert quote["price"]["vat"] == 7900
     assert quote["price"]["total_vat_incl"] == 47400
 
+
 def test_parse_simple_quote_discount_percent():
     """
     A prestation price can define a discount (percent).
@@ -439,6 +440,7 @@ def test_parse_simple_quote_discount_percent():
     assert quote["price"]["vat"] == 7600
     assert quote["price"]["total_vat_incl"] == 45600
 
+
 def test_parse_simple_quote_discount_spec():
     """
     A prestation price can define a discount (spec).
@@ -448,7 +450,7 @@ def test_parse_simple_quote_discount_spec():
     definition["discount"] = {
         "mode": "percent",
         "value": 5,
-        "title": "Remise commerciale"
+        "title": "Remise commerciale",
     }
     quote = parse_quote(definition)
     checkQuote(quote)
@@ -461,6 +463,7 @@ def test_parse_simple_quote_discount_spec():
     assert quote["price"]["discount_vat_excl"] == 2000
     assert quote["price"]["vat"] == 7600
     assert quote["price"]["total_vat_incl"] == 45600
+
 
 # ------------------------------------------------------------------------------
 # Invoices.
