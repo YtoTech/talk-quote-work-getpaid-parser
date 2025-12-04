@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-    tqwgp-parser.files.loaders
-    ~~~~~~~~~~~~~~~~~~~~~
-    Files / projects loading facilities for the TQWGP parser.
+tqwgp-parser.files.loaders
+~~~~~~~~~~~~~~~~~~~~~
+Files / projects loading facilities for the TQWGP parser.
 
-    :copyright: (c) 2022 Yoan Tournade.
+:copyright: (c) 2022 Yoan Tournade.
 """
 import os
 import pathlib

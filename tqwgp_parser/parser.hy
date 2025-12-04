@@ -359,6 +359,10 @@
     }
   ]))
 
+;; TODO Create Factur-X XML metadata.
+;; TODO Implement a tool to merge XML and PDF to a Factur-X format.
+;; https://fnfe-mpe.org/factur-x/implementer-factur-x/
+;; https://github.com/akretion/factur-x
 (defn parse-invoice [invoice invoices options]
   (setv lines (list (map (fn [line] (parse-line line options)) (get invoice "lines"))))
   (setv has-quantities (any (map (fn [line] (> (get line "quantity") 1)) lines)))
