@@ -44,7 +44,9 @@
   (merge-dicts [
     (parse-dict-values prestation
       ["title"]
-      ["price" "quantity" "description" "batch" "optional"])
+      ["price" "quantity" "description" "batch" "optional"]
+      ;; Do a pass-through: do not restrict other values.
+      :passthrough True)
     {
       "price" (apply-any-price-formula
         (get-default prestation "price" None)
@@ -63,7 +65,9 @@
   (merge-dicts [
     (parse-dict-values section
       ["title" "prestations"]
-      ["description" "batch"])
+      ["description" "batch"]
+      ;; Do a pass-through: do not restrict other values.
+      :passthrough True)
     {
       "prestations" prestations
       "price" (compute-price-vat prestations
@@ -250,8 +254,9 @@
   (merge-dicts [
     (parse-dict-values sect
       ["name" "email"]
-      ; TODO Allows to pass other metadata / properties.
-      ["logo" "logo_tex"])
+      ["logo" "logo_tex"]
+      ; Allows to pass other metadata / properties.
+      :passthrough True)
     {
       "logo" (parse-logo (get-default sect "logo" None))
     }]))
@@ -314,9 +319,10 @@
     (parse-dict-values definition
       ["title" "date" "author" "place" "sect"
        "client" "legal" "object" "prestations"]
-      ;; TODO Do a pass-through: do not restrict other values.
       ["context" "version" "definitions" "conditions" "documents" "display_project_reference"
-      "vat_rate" "discount" "annexes" "others"])
+      "vat_rate" "discount" "annexes" "others"]
+      ;; Do a pass-through: do not restrict other values.
+      :passthrough True)
     {
       "sect" (parse-sect (get definition "sect"))
       "vat_rate" vat_rate
@@ -347,7 +353,9 @@
   (merge-dicts [
     (parse-dict-values line
       ["title" "price"]
-      ["description" "quantity"])
+      ["description" "quantity"]
+      ;; Do a pass-through: do not restrict other values.
+      :passthrough True)
     {
       "quantity" (get-default line "quantity" 1)
       "price" (apply-any-price-formula
@@ -376,10 +384,11 @@
     (filter-dict
       (parse-dict-values invoice
         ["number" "date" "lines"]
-        ;; TODO Do a pass-through: do not restrict other values.
         ["author" "sect" "client" "legal" "closing_note"
         "title" "vat_rate" "display_project_reference"
-        "annexes" "others"])
+        "annexes" "others"]
+        ;; Do a pass-through: do not restrict other values.
+        :passthrough True)
       (fn [value key]
         (or (not (none? value)) (not (in key common-values)))))
     ]))

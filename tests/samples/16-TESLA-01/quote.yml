@@ -73,6 +73,7 @@ prestations:
     price: 5000
     description: |
       Fichier (appelés de définitions) pour décrire les étapes de création d'un produit, ses contraintes, le calcul de son prix, etc.
+    other_property: 7
   - title: Intégration de l'UI
     price: 10000
     description: |

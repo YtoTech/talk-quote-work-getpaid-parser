@@ -20,9 +20,8 @@ pyyaml = "*"
 twine = "*"
 setuptools = "*"
 wheel = "*"
-
-[requires]
-python_version = "3"
+build = "*"
+tqwgp-parser = {path = ".", editable = true}
 
 [scripts]
 tests = "pytest -vv"

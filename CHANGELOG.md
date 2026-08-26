@@ -1,3 +1,7 @@
+# 1.0.0
+
+* Pasthrough any other properties on main document (quote, invoice) or document line (prestation, invoice line)
+
 # 0.9.0
 
 * Add optional sections `annexes` and `others` to quotes and invoices

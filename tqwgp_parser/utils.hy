@@ -55,7 +55,7 @@
 
 ; Dicts.
 
-(defn parse-dict-values [value mandatories optionals]
+(defn parse-dict-values [value mandatories optionals [passthrough False]]
   ;; Use dict-comp http://docs.hylang.org/en/stable/language/api.html#dict-comp?
   (setv parsed-dict {})
   (for [key (.keys value)] ((fn [key]
@@ -70,6 +70,10 @@
   (for [optional optionals] ((fn [optional]
     (when (not (in optional parsed-dict))
       (assoc parsed-dict optional None))) optional))
+  (when passthrough
+    ;; Pass all other properties.
+    (for [other-key (- (set (.keys value)) (set (+ mandatories optionals)))]
+      (assoc parsed-dict other-key (get value other-key))))
   parsed-dict)
 
 (defn merge-dicts [dicts]

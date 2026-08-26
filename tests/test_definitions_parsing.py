@@ -479,6 +479,7 @@ def test_parse_simple_quote_other_properties_passthrough():
     checkQuote(quote)
     assert len(quote["prestations"]) == 4
     assert quote["show_all_quantities"] is True
+    assert quote["prestations"][0]["other_property"] == 7
 
 # ------------------------------------------------------------------------------
 # Invoices.
