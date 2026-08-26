@@ -465,6 +465,18 @@ def test_parse_simple_quote_discount_spec():
     assert quote["price"]["total_vat_incl"] == 45600
 
 
+def test_parse_simple_quote_other_properties_passthrough():
+    """
+    Let other properties pass through the parser.
+    """
+    definition = copy.deepcopy(TESLA_16_01_QUOTE)
+    definition["vat_rate"] = 20
+    definition["discount"] = "5%"
+    quote = parse_quote(definition)
+    checkQuote(quote)
+    assert len(quote["prestations"]) == 4
+    assert quote["show_all_quantities"] is True
+
 # ------------------------------------------------------------------------------
 # Invoices.
 # ------------------------------------------------------------------------------

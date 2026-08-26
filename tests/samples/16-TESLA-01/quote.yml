@@ -31,6 +31,7 @@ client:
     name: Elon Musk
     role: CEO
     sason: son
+show_all_quantities: True
 object: |
   Le présent devis porte sur ...
 
