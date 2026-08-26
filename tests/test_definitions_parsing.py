@@ -126,6 +126,9 @@ def test_parse_simple_quote():
     )
     assert quote["optional_prestations"][0]["price"] == 14000
     assert quote["optional_prestations"][0]["optional"] is True
+    assert quote["annexes"] == "Ce sont les annexes\n"
+    assert quote["others"]["section1"] == "Yeah"
+    assert quote["others"]["section2"] == ["Un", "Deux"]
 
 
 def test_parse_quote_with_sections():
@@ -552,6 +555,8 @@ def test_parse_simple_invoices():
     assert len(invoices["invoices"][0]["lines"]) == 1
     assert invoices["invoices"][0]["lines"][0]["title"] == "Acompte devis 16-TESLA-01"
     assert invoices["invoices"][2]["title"] == "Solde du projet"
+    assert invoices["invoices"][2]["others"]["section1"] == "Yeah"
+    assert invoices["invoices"][2]["others"]["section2"] == ["Un", "Deux"]
 
 
 def test_parse_invoice_overriding():

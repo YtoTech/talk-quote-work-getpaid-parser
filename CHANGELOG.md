@@ -1,3 +1,7 @@
+# 0.9.0
+
+* Add optional sections `annexes` and `others` to quotes and invoices
+
 # 0.8.1
 
 * Removed warning for CLI arg `--verbose`

@@ -312,10 +312,11 @@
   (merge-dicts [
     ;; TODO Make the validation of the input dict recursive.
     (parse-dict-values definition
-      ["title" "date" "author" "place" "sect" "client" "legal" "object" "prestations"]
+      ["title" "date" "author" "place" "sect"
+       "client" "legal" "object" "prestations"]
       ;; TODO Do a pass-through: do not restrict other values.
       ["context" "version" "definitions" "conditions" "documents" "display_project_reference"
-      "vat_rate" "discount"])
+      "vat_rate" "discount" "annexes" "others"])
     {
       "sect" (parse-sect (get definition "sect"))
       "vat_rate" vat_rate
@@ -376,7 +377,9 @@
       (parse-dict-values invoice
         ["number" "date" "lines"]
         ;; TODO Do a pass-through: do not restrict other values.
-        ["author" "sect" "client" "legal" "closing_note" "title" "vat_rate" "display_project_reference"])
+        ["author" "sect" "client" "legal" "closing_note"
+        "title" "vat_rate" "display_project_reference"
+        "annexes" "others"])
       (fn [value key]
         (or (not (none? value)) (not (in key common-values)))))
     ]))

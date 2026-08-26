@@ -58,3 +58,8 @@ invoices:
       Merci,
 
       BF.
+    others:
+        section1: Yeah
+        section2:
+            - Un
+            - Deux

@@ -141,3 +141,12 @@ conditions:
       Le présent devis et ses termes prendront effet à compter de la signature des parties en
       présence, ou à défaut du règlement par le client de l’acompte pour le premier lot de
       prestations.
+
+annexes: |
+    Ce sont les annexes
+
+others:
+    section1: Yeah
+    section2:
+        - Un
+        - Deux
