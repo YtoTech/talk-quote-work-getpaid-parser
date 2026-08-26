@@ -5,6 +5,7 @@ tests.test_definitions_parsing
 Ensures definitions are well-parsed and that the format is normalized.
 :copyright: (c) 2017-2021 Yoan Tournade.
 """
+
 import codecs
 import yaml
 import os
@@ -160,6 +161,7 @@ def test_parse_quote_with_sections():
     assert (
         quote["sections"][1]["title"] == "Intégration e-commerce du CPQ sur tesla.com"
     )
+    assert quote["sections"][1]["description"] == "Une description\n"
     assert quote["sections"][1]["price"]["total_vat_excl"] == 6300
     assert quote["sections"][1]["optional_price"]["total_vat_excl"] == 6300
 
@@ -480,6 +482,7 @@ def test_parse_simple_quote_other_properties_passthrough():
     assert len(quote["prestations"]) == 4
     assert quote["show_all_quantities"] is True
     assert quote["prestations"][0]["other_property"] == 7
+
 
 # ------------------------------------------------------------------------------
 # Invoices.

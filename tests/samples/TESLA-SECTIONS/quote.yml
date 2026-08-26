@@ -80,6 +80,8 @@ prestations:
             \item Vue explosée.
           \end{itemize}
   - title: Intégration e-commerce du CPQ sur tesla.com
+    description: |
+      Une description
     prestations:
       - title: Intégration Javascript
         price: 2000
