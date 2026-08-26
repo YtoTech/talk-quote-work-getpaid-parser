@@ -8,6 +8,7 @@ This is a Work-in-Progress.
 
 :copyright: (c) 2021 Yoan Tournade.
 """
+
 import os
 import sys
 import os.path
@@ -233,19 +234,15 @@ def show(
         pprint.pprint(loaded_documents)
         return
     for document in loaded_documents["documents"]:
-        print(
-            f"""{document["document_path"]}
-  Document type {document["document_type"]}, project {document["project_name"]}:"""
-        )
+        print(f"""{document["document_path"]}
+  Document type {document["document_type"]}, project {document["project_name"]}:""")
         if document["document_type"] == "invoice":
             for invoice in document["parsed_document"]["invoices"]:
-                print(
-                    f"""   - Invoice n°{invoice["number"]} ({invoice["date"]})
+                print(f"""   - Invoice n°{invoice["number"]} ({invoice["date"]})
      Prestataire: {invoice["sect"]["name"]} - Client: {invoice["client"]["name"]}
      Total HT: {format_decimal(invoice["price"]["total_vat_excl"])}
      TVA: {format_decimal(invoice["price"]["vat"] or 0)}
-     Total TTC: {format_decimal(invoice["price"]["total_vat_incl"])}"""
-                )
+     Total TTC: {format_decimal(invoice["price"]["total_vat_incl"])}""")
         elif document["document_type"] == "quote":
             quote = document["parsed_document"]
             print(

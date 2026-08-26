@@ -6,6 +6,7 @@ TQWGP parser package.
 
 :copyright: (c) 2021 Yoan Tournade.
 """
+
 import hy
 
 # # Expose main parsing functions.

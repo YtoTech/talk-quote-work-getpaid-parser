@@ -6,6 +6,7 @@ Files / projects loading facilities for the TQWGP parser.
 
 :copyright: (c) 2022 Yoan Tournade.
 """
+
 import os
 import pathlib
 import glob
